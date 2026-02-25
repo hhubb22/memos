@@ -223,6 +223,10 @@ func (s *Store) GetInstanceAIConfigSetting(ctx context.Context) (*storepb.Instan
 	return instanceAIConfigSetting, nil
 }
 
+// convertInstanceSettingFromRaw converts a raw stored InstanceSetting into its protobuf representation.
+// It unmarshals the raw Value JSON into the typed setting corresponding to instanceSettingRaw.Name
+// and returns an InstanceSetting with the appropriate oneof field populated. For unsupported keys
+// the function returns (nil, nil). If JSON unmarshalling fails, it returns the unmarshalling error.
 func convertInstanceSettingFromRaw(instanceSettingRaw *InstanceSetting) (*storepb.InstanceSetting, error) {
 	instanceSetting := &storepb.InstanceSetting{
 		Key: storepb.InstanceSettingKey(storepb.InstanceSettingKey_value[instanceSettingRaw.Name]),
