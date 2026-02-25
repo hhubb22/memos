@@ -106,6 +106,9 @@ func (s *APIV1Service) UpdateInstanceSetting(ctx context.Context, request *v1pb.
 	return convertInstanceSettingFromStore(instanceSetting), nil
 }
 
+// convertInstanceSettingFromStore converts a storepb.InstanceSetting into a v1pb.InstanceSetting.
+// The resulting InstanceSetting.Name is formatted as "instance/settings/{key}" and its Value is
+// mapped to the corresponding v1 variant: General, Storage, MemoRelated, or AiConfig.
 func convertInstanceSettingFromStore(setting *storepb.InstanceSetting) *v1pb.InstanceSetting {
 	instanceSetting := &v1pb.InstanceSetting{
 		Name: fmt.Sprintf("instance/settings/%s", setting.Key.String()),
@@ -131,6 +134,9 @@ func convertInstanceSettingFromStore(setting *storepb.InstanceSetting) *v1pb.Ins
 	return instanceSetting
 }
 
+// convertInstanceSettingToStore converts a v1 InstanceSetting into the corresponding store InstanceSetting.
+// It derives the store key from setting.Name and maps the contained value to the matching store value type.
+// If the extracted key is unrecognized, the returned InstanceSetting will contain a GeneralSetting value by default.
 func convertInstanceSettingToStore(setting *v1pb.InstanceSetting) *storepb.InstanceSetting {
 	settingKeyString, _ := ExtractInstanceSettingKeyFromName(setting.Name)
 	instanceSetting := &storepb.InstanceSetting{
@@ -266,6 +272,8 @@ func convertInstanceMemoRelatedSettingFromStore(setting *storepb.InstanceMemoRel
 	}
 }
 
+// convertInstanceMemoRelatedSettingToStore converts a v1 InstanceSetting_MemoRelatedSetting into a store InstanceMemoRelatedSetting.
+// It returns nil if the provided setting is nil.
 func convertInstanceMemoRelatedSettingToStore(setting *v1pb.InstanceSetting_MemoRelatedSetting) *storepb.InstanceMemoRelatedSetting {
 	if setting == nil {
 		return nil
@@ -279,6 +287,8 @@ func convertInstanceMemoRelatedSettingToStore(setting *v1pb.InstanceSetting_Memo
 	}
 }
 
+// convertInstanceAIConfigSettingFromStore converts a store-level InstanceAIConfigSetting into
+// the v1 API representation InstanceSetting_AIConfigSetting. Returns nil if the input is nil.
 func convertInstanceAIConfigSettingFromStore(setting *storepb.InstanceAIConfigSetting) *v1pb.InstanceSetting_AIConfigSetting {
 	if setting == nil {
 		return nil
@@ -291,6 +301,8 @@ func convertInstanceAIConfigSettingFromStore(setting *storepb.InstanceAIConfigSe
 	}
 }
 
+// convertInstanceAIConfigSettingToStore converts a v1 InstanceSetting AI config value into the corresponding store representation.
+// If the input is nil, it returns nil.
 func convertInstanceAIConfigSettingToStore(setting *v1pb.InstanceSetting_AIConfigSetting) *storepb.InstanceAIConfigSetting {
 	if setting == nil {
 		return nil

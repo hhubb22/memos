@@ -29,7 +29,7 @@ type Client struct {
 }
 
 // NewClient creates a new AI client with the given configuration.
-// It applies default values for APIBaseURL and Model if not set.
+// when those fields are empty, and initializes the client's HTTP client to http.DefaultClient.
 func NewClient(config Config) *Client {
 	if config.APIBaseURL == "" {
 		config.APIBaseURL = defaultAPIBaseURL

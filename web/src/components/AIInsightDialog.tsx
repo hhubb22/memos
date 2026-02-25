@@ -14,6 +14,14 @@ interface Props {
   memoNames: string[];
 }
 
+/**
+ * Renders a modal dialog that generates and displays an AI insight for the given memos.
+ *
+ * @param open - Whether the dialog is open
+ * @param onOpenChange - Callback invoked when the dialog open state changes
+ * @param memoNames - List of memo identifiers to include in the insight generation
+ * @returns The dialog element containing loading state, the generated insight text, and a Regenerate action
+ */
 function AIInsightDialog({ open, onOpenChange, memoNames }: Props) {
   const [insight, setInsight] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
