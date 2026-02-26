@@ -112,7 +112,12 @@ const MemoDetailSidebar = ({ memo, className, parentPage }: Props) => {
         </div>
       </div>
 
-      <AIInsightDialog open={insightDialogOpen} onOpenChange={setInsightDialogOpen} memoNames={insightMemoNames} />
+      <AIInsightDialog
+        open={insightDialogOpen}
+        onOpenChange={setInsightDialogOpen}
+        defaultMemoNames={insightMemoNames}
+        defaultMode="memo_names"
+      />
     </aside>
   );
 };

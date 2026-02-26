@@ -110,6 +110,16 @@ service MemoService {
       body: "*"
     };
   }
+  // ListInsightReports lists historical AI insight reports for a user.
+  rpc ListInsightReports(ListInsightReportsRequest) returns (ListInsightReportsResponse) {
+    option (google.api.http) = {get: "/api/v1/{parent=users/*}/insightReports"};
+    option (google.api.method_signature) = "parent";
+  }
+  // GetInsightReport gets a historical AI insight report.
+  rpc GetInsightReport(GetInsightReportRequest) returns (InsightReport) {
+    option (google.api.http) = {get: "/api/v1/{name=users/*/insightReports/*}"};
+    option (google.api.method_signature) = "name";
+  }
 }
 
 enum Visibility {
@@ -517,6 +527,101 @@ message DeleteMemoReactionRequest {
   ];
 }
 
+message InsightCitation {
+  // Required. The memo source of this citation.
+  // Format: memos/{memo}
+  string memo = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "memos.api.v1/Memo"}
+  ];
+
+  // Required. The exact quote from the memo content.
+  string quote = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Required. Why this quote supports the conclusion.
+  string reason = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message InsightReport {
+  option (google.api.resource) = {
+    type: "memos.api.v1/InsightReport"
+    pattern: "users/{user}/insightReports/{insight_report}"
+    name_field: "name"
+    singular: "insightReport"
+    plural: "insightReports"
+  };
+
+  // Output only. The resource name of the report.
+  // Format: users/{user}/insightReports/{insight_report}
+  string name = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
+
+  // Output only. The creator of the report.
+  // Format: users/{user}
+  string creator = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {type: "memos.api.v1/User"}
+  ];
+
+  // Output only. The creation timestamp.
+  google.protobuf.Timestamp create_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. The selected perspective.
+  string perspective = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. One-line summary.
+  string summary = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Rendered insight in markdown format.
+  string insight = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. The source filter used to select memos (if filter mode is used).
+  string source_filter = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Source memo names provided by user (if explicit memo mode is used).
+  repeated string source_memo_names = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. The number of memos resolved and analyzed.
+  int32 resolved_memo_count = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Citation list in this report.
+  repeated InsightCitation citations = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message ListInsightReportsRequest {
+  // Required. The parent user resource.
+  // Format: users/{user}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "memos.api.v1/User"}
+  ];
+
+  // Optional. The maximum number of reports to return.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. A page token for pagination.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListInsightReportsResponse {
+  // The list of reports.
+  repeated InsightReport insight_reports = 1;
+
+  // A token for the next page of results.
+  string next_page_token = 2;
+}
+
+message GetInsightReportRequest {
+  // Required. The resource name of the insight report.
+  // Format: users/{user}/insightReports/{insight_report}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "memos.api.v1/InsightReport"}
+  ];
+}
+
 message GenerateInsightRequest {
   // The memo names to analyze.
   // Format: memos/{memo}
@@ -524,9 +629,16 @@ message GenerateInsightRequest {
 
   // Optional filter string for selecting memos (CEL expression).
   string filter = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional perspective. Supported values:
+  // "random", "critical_thinking", "systems_thinking", "emotional_pattern", "creative_association", "socratic_questioning".
+  string perspective = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message GenerateInsightResponse {
   // The generated insight text in markdown format.
   string insight = 1;
+
+  // Output only. The generated insight report.
+  InsightReport report = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

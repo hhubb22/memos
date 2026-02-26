@@ -15,6 +15,7 @@ const (
 	MemoNamePrefix             = "memos/"
 	AttachmentNamePrefix       = "attachments/"
 	ReactionNamePrefix         = "reactions/"
+	InsightReportNamePrefix    = "insightReports/"
 	InboxNamePrefix            = "inboxes/"
 	IdentityProviderNamePrefix = "identity-providers/"
 	ActivityNamePrefix         = "activities/"
@@ -118,6 +119,24 @@ func ExtractMemoReactionIDFromName(name string) (string, int32, error) {
 		return "", 0, errors.Errorf("invalid reaction ID %q", tokens[1])
 	}
 	return memoUID, reactionID, nil
+}
+
+// ExtractUserAndInsightReportIDFromName returns the user ID and insight report ID from a resource name.
+// e.g., "users/1/insightReports/2" -> (1, 2).
+func ExtractUserAndInsightReportIDFromName(name string) (int32, int32, error) {
+	tokens, err := GetNameParentTokens(name, UserNamePrefix, InsightReportNamePrefix)
+	if err != nil {
+		return 0, 0, err
+	}
+	userID, err := util.ConvertStringToInt32(tokens[0])
+	if err != nil {
+		return 0, 0, errors.Errorf("invalid user ID %q", tokens[0])
+	}
+	reportID, err := util.ConvertStringToInt32(tokens[1])
+	if err != nil {
+		return 0, 0, errors.Errorf("invalid insight report ID %q", tokens[1])
+	}
+	return userID, reportID, nil
 }
 
 // ExtractInboxIDFromName returns the inbox ID from a resource name.

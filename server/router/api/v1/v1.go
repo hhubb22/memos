@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sync/semaphore"
 
 	"github.com/usememos/memos/internal/profile"
+	"github.com/usememos/memos/plugin/ai"
 	"github.com/usememos/memos/plugin/markdown"
 	v1pb "github.com/usememos/memos/proto/gen/api/v1"
 	"github.com/usememos/memos/server/auth"
@@ -34,6 +35,8 @@ type APIV1Service struct {
 
 	// thumbnailSemaphore limits concurrent thumbnail generation to prevent memory exhaustion
 	thumbnailSemaphore *semaphore.Weighted
+
+	AIClientFactory func(config ai.Config) AIClient
 }
 
 func NewAPIV1Service(secret string, profile *profile.Profile, store *store.Store) *APIV1Service {
@@ -46,6 +49,9 @@ func NewAPIV1Service(secret string, profile *profile.Profile, store *store.Store
 		Store:              store,
 		MarkdownService:    markdownService,
 		thumbnailSemaphore: semaphore.NewWeighted(3), // Limit to 3 concurrent thumbnail generations
+		AIClientFactory: func(config ai.Config) AIClient {
+			return ai.NewClient(config)
+		},
 	}
 }
 

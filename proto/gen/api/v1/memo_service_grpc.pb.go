@@ -35,6 +35,8 @@ const (
 	MemoService_UpsertMemoReaction_FullMethodName  = "/memos.api.v1.MemoService/UpsertMemoReaction"
 	MemoService_DeleteMemoReaction_FullMethodName  = "/memos.api.v1.MemoService/DeleteMemoReaction"
 	MemoService_GenerateInsight_FullMethodName     = "/memos.api.v1.MemoService/GenerateInsight"
+	MemoService_ListInsightReports_FullMethodName  = "/memos.api.v1.MemoService/ListInsightReports"
+	MemoService_GetInsightReport_FullMethodName    = "/memos.api.v1.MemoService/GetInsightReport"
 )
 
 // MemoServiceClient is the client API for MemoService service.
@@ -71,6 +73,10 @@ type MemoServiceClient interface {
 	DeleteMemoReaction(ctx context.Context, in *DeleteMemoReactionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// GenerateInsight generates AI insight from a set of memos.
 	GenerateInsight(ctx context.Context, in *GenerateInsightRequest, opts ...grpc.CallOption) (*GenerateInsightResponse, error)
+	// ListInsightReports lists historical AI insight reports for a user.
+	ListInsightReports(ctx context.Context, in *ListInsightReportsRequest, opts ...grpc.CallOption) (*ListInsightReportsResponse, error)
+	// GetInsightReport gets a historical AI insight report.
+	GetInsightReport(ctx context.Context, in *GetInsightReportRequest, opts ...grpc.CallOption) (*InsightReport, error)
 }
 
 type memoServiceClient struct {
@@ -231,6 +237,26 @@ func (c *memoServiceClient) GenerateInsight(ctx context.Context, in *GenerateIns
 	return out, nil
 }
 
+func (c *memoServiceClient) ListInsightReports(ctx context.Context, in *ListInsightReportsRequest, opts ...grpc.CallOption) (*ListInsightReportsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListInsightReportsResponse)
+	err := c.cc.Invoke(ctx, MemoService_ListInsightReports_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *memoServiceClient) GetInsightReport(ctx context.Context, in *GetInsightReportRequest, opts ...grpc.CallOption) (*InsightReport, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InsightReport)
+	err := c.cc.Invoke(ctx, MemoService_GetInsightReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MemoServiceServer is the server API for MemoService service.
 // All implementations must embed UnimplementedMemoServiceServer
 // for forward compatibility.
@@ -265,6 +291,10 @@ type MemoServiceServer interface {
 	DeleteMemoReaction(context.Context, *DeleteMemoReactionRequest) (*emptypb.Empty, error)
 	// GenerateInsight generates AI insight from a set of memos.
 	GenerateInsight(context.Context, *GenerateInsightRequest) (*GenerateInsightResponse, error)
+	// ListInsightReports lists historical AI insight reports for a user.
+	ListInsightReports(context.Context, *ListInsightReportsRequest) (*ListInsightReportsResponse, error)
+	// GetInsightReport gets a historical AI insight report.
+	GetInsightReport(context.Context, *GetInsightReportRequest) (*InsightReport, error)
 	mustEmbedUnimplementedMemoServiceServer()
 }
 
@@ -319,6 +349,12 @@ func (UnimplementedMemoServiceServer) DeleteMemoReaction(context.Context, *Delet
 }
 func (UnimplementedMemoServiceServer) GenerateInsight(context.Context, *GenerateInsightRequest) (*GenerateInsightResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GenerateInsight not implemented")
+}
+func (UnimplementedMemoServiceServer) ListInsightReports(context.Context, *ListInsightReportsRequest) (*ListInsightReportsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListInsightReports not implemented")
+}
+func (UnimplementedMemoServiceServer) GetInsightReport(context.Context, *GetInsightReportRequest) (*InsightReport, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetInsightReport not implemented")
 }
 func (UnimplementedMemoServiceServer) mustEmbedUnimplementedMemoServiceServer() {}
 func (UnimplementedMemoServiceServer) testEmbeddedByValue()                     {}
@@ -611,6 +647,42 @@ func _MemoService_GenerateInsight_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MemoService_ListInsightReports_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListInsightReportsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MemoServiceServer).ListInsightReports(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MemoService_ListInsightReports_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MemoServiceServer).ListInsightReports(ctx, req.(*ListInsightReportsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MemoService_GetInsightReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInsightReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MemoServiceServer).GetInsightReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MemoService_GetInsightReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MemoServiceServer).GetInsightReport(ctx, req.(*GetInsightReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MemoService_ServiceDesc is the grpc.ServiceDesc for MemoService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -677,6 +749,14 @@ var MemoService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateInsight",
 			Handler:    _MemoService_GenerateInsight_Handler,
+		},
+		{
+			MethodName: "ListInsightReports",
+			Handler:    _MemoService_ListInsightReports_Handler,
+		},
+		{
+			MethodName: "GetInsightReport",
+			Handler:    _MemoService_GetInsightReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1282,6 +1282,75 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/v1/users/{user}/insightReports:
+        get:
+            tags:
+                - MemoService
+            description: ListInsightReports lists historical AI insight reports for a user.
+            operationId: MemoService_ListInsightReports
+            parameters:
+                - name: user
+                  in: path
+                  description: The user id.
+                  required: true
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  description: Optional. The maximum number of reports to return.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  description: Optional. A page token for pagination.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListInsightReportsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/{user}/insightReports/{insightReport}:
+        get:
+            tags:
+                - MemoService
+            description: GetInsightReport gets a historical AI insight report.
+            operationId: MemoService_GetInsightReport
+            parameters:
+                - name: user
+                  in: path
+                  description: The user id.
+                  required: true
+                  schema:
+                    type: string
+                - name: insightReport
+                  in: path
+                  description: The insightReport id.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InsightReport'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/v1/users/{user}/notifications:
         get:
             tags:
@@ -2118,12 +2187,22 @@ components:
                 filter:
                     type: string
                     description: Optional filter string for selecting memos (CEL expression).
+                perspective:
+                    type: string
+                    description: |-
+                        Optional perspective. Supported values:
+                         "random", "critical_thinking", "systems_thinking", "emotional_pattern", "creative_association", "socratic_questioning".
         GenerateInsightResponse:
             type: object
             properties:
                 insight:
                     type: string
                     description: The generated insight text in markdown format.
+                report:
+                    readOnly: true
+                    allOf:
+                        - $ref: '#/components/schemas/InsightReport'
+                    description: Output only. The generated insight report.
         GetCurrentUserResponse:
             type: object
             properties:
@@ -2173,6 +2252,77 @@ components:
             properties:
                 oauth2Config:
                     $ref: '#/components/schemas/OAuth2Config'
+        InsightCitation:
+            required:
+                - memo
+                - quote
+                - reason
+            type: object
+            properties:
+                memo:
+                    type: string
+                    description: |-
+                        Required. The memo source of this citation.
+                         Format: memos/{memo}
+                quote:
+                    type: string
+                    description: Required. The exact quote from the memo content.
+                reason:
+                    type: string
+                    description: Required. Why this quote supports the conclusion.
+        InsightReport:
+            type: object
+            properties:
+                name:
+                    readOnly: true
+                    type: string
+                    description: |-
+                        Output only. The resource name of the report.
+                         Format: users/{user}/insightReports/{insight_report}
+                creator:
+                    readOnly: true
+                    type: string
+                    description: |-
+                        Output only. The creator of the report.
+                         Format: users/{user}
+                createTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. The creation timestamp.
+                    format: date-time
+                perspective:
+                    readOnly: true
+                    type: string
+                    description: Output only. The selected perspective.
+                summary:
+                    readOnly: true
+                    type: string
+                    description: Output only. One-line summary.
+                insight:
+                    readOnly: true
+                    type: string
+                    description: Output only. Rendered insight in markdown format.
+                sourceFilter:
+                    readOnly: true
+                    type: string
+                    description: Output only. The source filter used to select memos (if filter mode is used).
+                sourceMemoNames:
+                    readOnly: true
+                    type: array
+                    items:
+                        type: string
+                    description: Output only. Source memo names provided by user (if explicit memo mode is used).
+                resolvedMemoCount:
+                    readOnly: true
+                    type: integer
+                    description: Output only. The number of memos resolved and analyzed.
+                    format: int32
+                citations:
+                    readOnly: true
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InsightCitation'
+                    description: Output only. Citation list in this report.
         InstanceProfile:
             type: object
             properties:
@@ -2352,6 +2502,17 @@ components:
                     items:
                         $ref: '#/components/schemas/IdentityProvider'
                     description: The list of identity providers.
+        ListInsightReportsResponse:
+            type: object
+            properties:
+                insightReports:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InsightReport'
+                    description: The list of reports.
+                nextPageToken:
+                    type: string
+                    description: A token for the next page of results.
         ListMemoAttachmentsResponse:
             type: object
             properties:

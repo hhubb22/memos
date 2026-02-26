@@ -1,5 +1,9 @@
+import { SparklesIcon } from "lucide-react";
+import { useState } from "react";
+import AIInsightDialog from "@/components/AIInsightDialog";
 import MemoView from "@/components/MemoView";
 import PagedMemoList from "@/components/PagedMemoList";
+import { Button } from "@/components/ui/button";
 import { useInstance } from "@/contexts/InstanceContext";
 import { useMemoFilters, useMemoSorting } from "@/hooks";
 import useCurrentUser from "@/hooks/useCurrentUser";
@@ -9,6 +13,7 @@ import { Memo } from "@/types/proto/api/v1/memo_service_pb";
 const Home = () => {
   const user = useCurrentUser();
   const { isInitialized } = useInstance();
+  const [insightDialogOpen, setInsightDialogOpen] = useState(false);
 
   const memoFilter = useMemoFilters({
     creatorName: user?.name,
@@ -29,7 +34,16 @@ const Home = () => {
         orderBy={orderBy}
         filter={memoFilter}
         enabled={isInitialized}
+        prefixElement={
+          <div className="w-full mb-2 flex justify-end">
+            <Button variant="outline" size="sm" className="h-7 gap-1.5" onClick={() => setInsightDialogOpen(true)}>
+              <SparklesIcon className="w-3.5 h-3.5 text-amber-500" />
+              AI Insight
+            </Button>
+          </div>
+        }
       />
+      <AIInsightDialog open={insightDialogOpen} onOpenChange={setInsightDialogOpen} defaultFilter={memoFilter || ""} defaultMode="filter" />
     </div>
   );
 };

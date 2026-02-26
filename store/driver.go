@@ -67,4 +67,9 @@ type Driver interface {
 	ListReactions(ctx context.Context, find *FindReaction) ([]*Reaction, error)
 	GetReaction(ctx context.Context, find *FindReaction) (*Reaction, error)
 	DeleteReaction(ctx context.Context, delete *DeleteReaction) error
+
+	// InsightReport model related methods.
+	CreateInsightReport(ctx context.Context, create *InsightReport) (*InsightReport, error)
+	ListInsightReports(ctx context.Context, find *FindInsightReport) ([]*InsightReport, error)
+	DeleteInsightReport(ctx context.Context, delete *DeleteInsightReport) error
 }

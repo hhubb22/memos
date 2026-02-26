@@ -1672,20 +1672,379 @@ func (x *DeleteMemoReactionRequest) GetName() string {
 	return ""
 }
 
+type InsightCitation struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The memo source of this citation.
+	// Format: memos/{memo}
+	Memo string `protobuf:"bytes,1,opt,name=memo,proto3" json:"memo,omitempty"`
+	// Required. The exact quote from the memo content.
+	Quote string `protobuf:"bytes,2,opt,name=quote,proto3" json:"quote,omitempty"`
+	// Required. Why this quote supports the conclusion.
+	Reason        string `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InsightCitation) Reset() {
+	*x = InsightCitation{}
+	mi := &file_api_v1_memo_service_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InsightCitation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InsightCitation) ProtoMessage() {}
+
+func (x *InsightCitation) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_memo_service_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InsightCitation.ProtoReflect.Descriptor instead.
+func (*InsightCitation) Descriptor() ([]byte, []int) {
+	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *InsightCitation) GetMemo() string {
+	if x != nil {
+		return x.Memo
+	}
+	return ""
+}
+
+func (x *InsightCitation) GetQuote() string {
+	if x != nil {
+		return x.Quote
+	}
+	return ""
+}
+
+func (x *InsightCitation) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type InsightReport struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. The resource name of the report.
+	// Format: users/{user}/insightReports/{insight_report}
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Output only. The creator of the report.
+	// Format: users/{user}
+	Creator string `protobuf:"bytes,2,opt,name=creator,proto3" json:"creator,omitempty"`
+	// Output only. The creation timestamp.
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	// Output only. The selected perspective.
+	Perspective string `protobuf:"bytes,4,opt,name=perspective,proto3" json:"perspective,omitempty"`
+	// Output only. One-line summary.
+	Summary string `protobuf:"bytes,5,opt,name=summary,proto3" json:"summary,omitempty"`
+	// Output only. Rendered insight in markdown format.
+	Insight string `protobuf:"bytes,6,opt,name=insight,proto3" json:"insight,omitempty"`
+	// Output only. The source filter used to select memos (if filter mode is used).
+	SourceFilter string `protobuf:"bytes,7,opt,name=source_filter,json=sourceFilter,proto3" json:"source_filter,omitempty"`
+	// Output only. Source memo names provided by user (if explicit memo mode is used).
+	SourceMemoNames []string `protobuf:"bytes,8,rep,name=source_memo_names,json=sourceMemoNames,proto3" json:"source_memo_names,omitempty"`
+	// Output only. The number of memos resolved and analyzed.
+	ResolvedMemoCount int32 `protobuf:"varint,9,opt,name=resolved_memo_count,json=resolvedMemoCount,proto3" json:"resolved_memo_count,omitempty"`
+	// Output only. Citation list in this report.
+	Citations     []*InsightCitation `protobuf:"bytes,10,rep,name=citations,proto3" json:"citations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InsightReport) Reset() {
+	*x = InsightReport{}
+	mi := &file_api_v1_memo_service_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InsightReport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InsightReport) ProtoMessage() {}
+
+func (x *InsightReport) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_memo_service_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InsightReport.ProtoReflect.Descriptor instead.
+func (*InsightReport) Descriptor() ([]byte, []int) {
+	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *InsightReport) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *InsightReport) GetCreator() string {
+	if x != nil {
+		return x.Creator
+	}
+	return ""
+}
+
+func (x *InsightReport) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
+func (x *InsightReport) GetPerspective() string {
+	if x != nil {
+		return x.Perspective
+	}
+	return ""
+}
+
+func (x *InsightReport) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *InsightReport) GetInsight() string {
+	if x != nil {
+		return x.Insight
+	}
+	return ""
+}
+
+func (x *InsightReport) GetSourceFilter() string {
+	if x != nil {
+		return x.SourceFilter
+	}
+	return ""
+}
+
+func (x *InsightReport) GetSourceMemoNames() []string {
+	if x != nil {
+		return x.SourceMemoNames
+	}
+	return nil
+}
+
+func (x *InsightReport) GetResolvedMemoCount() int32 {
+	if x != nil {
+		return x.ResolvedMemoCount
+	}
+	return 0
+}
+
+func (x *InsightReport) GetCitations() []*InsightCitation {
+	if x != nil {
+		return x.Citations
+	}
+	return nil
+}
+
+type ListInsightReportsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The parent user resource.
+	// Format: users/{user}
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// Optional. The maximum number of reports to return.
+	PageSize int32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Optional. A page token for pagination.
+	PageToken     string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListInsightReportsRequest) Reset() {
+	*x = ListInsightReportsRequest{}
+	mi := &file_api_v1_memo_service_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListInsightReportsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListInsightReportsRequest) ProtoMessage() {}
+
+func (x *ListInsightReportsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_memo_service_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListInsightReportsRequest.ProtoReflect.Descriptor instead.
+func (*ListInsightReportsRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ListInsightReportsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *ListInsightReportsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListInsightReportsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+type ListInsightReportsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The list of reports.
+	InsightReports []*InsightReport `protobuf:"bytes,1,rep,name=insight_reports,json=insightReports,proto3" json:"insight_reports,omitempty"`
+	// A token for the next page of results.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListInsightReportsResponse) Reset() {
+	*x = ListInsightReportsResponse{}
+	mi := &file_api_v1_memo_service_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListInsightReportsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListInsightReportsResponse) ProtoMessage() {}
+
+func (x *ListInsightReportsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_memo_service_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListInsightReportsResponse.ProtoReflect.Descriptor instead.
+func (*ListInsightReportsResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *ListInsightReportsResponse) GetInsightReports() []*InsightReport {
+	if x != nil {
+		return x.InsightReports
+	}
+	return nil
+}
+
+func (x *ListInsightReportsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type GetInsightReportRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The resource name of the insight report.
+	// Format: users/{user}/insightReports/{insight_report}
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetInsightReportRequest) Reset() {
+	*x = GetInsightReportRequest{}
+	mi := &file_api_v1_memo_service_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetInsightReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetInsightReportRequest) ProtoMessage() {}
+
+func (x *GetInsightReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_memo_service_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetInsightReportRequest.ProtoReflect.Descriptor instead.
+func (*GetInsightReportRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *GetInsightReportRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 type GenerateInsightRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The memo names to analyze.
 	// Format: memos/{memo}
 	MemoNames []string `protobuf:"bytes,1,rep,name=memo_names,json=memoNames,proto3" json:"memo_names,omitempty"`
 	// Optional filter string for selecting memos (CEL expression).
-	Filter        string `protobuf:"bytes,2,opt,name=filter,proto3" json:"filter,omitempty"`
+	Filter string `protobuf:"bytes,2,opt,name=filter,proto3" json:"filter,omitempty"`
+	// Optional perspective. Supported values:
+	// "random", "critical_thinking", "systems_thinking", "emotional_pattern", "creative_association", "socratic_questioning".
+	Perspective   string `protobuf:"bytes,3,opt,name=perspective,proto3" json:"perspective,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GenerateInsightRequest) Reset() {
 	*x = GenerateInsightRequest{}
-	mi := &file_api_v1_memo_service_proto_msgTypes[23]
+	mi := &file_api_v1_memo_service_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1697,7 +2056,7 @@ func (x *GenerateInsightRequest) String() string {
 func (*GenerateInsightRequest) ProtoMessage() {}
 
 func (x *GenerateInsightRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_memo_service_proto_msgTypes[23]
+	mi := &file_api_v1_memo_service_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1710,7 +2069,7 @@ func (x *GenerateInsightRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateInsightRequest.ProtoReflect.Descriptor instead.
 func (*GenerateInsightRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{23}
+	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GenerateInsightRequest) GetMemoNames() []string {
@@ -1727,17 +2086,26 @@ func (x *GenerateInsightRequest) GetFilter() string {
 	return ""
 }
 
+func (x *GenerateInsightRequest) GetPerspective() string {
+	if x != nil {
+		return x.Perspective
+	}
+	return ""
+}
+
 type GenerateInsightResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The generated insight text in markdown format.
-	Insight       string `protobuf:"bytes,1,opt,name=insight,proto3" json:"insight,omitempty"`
+	Insight string `protobuf:"bytes,1,opt,name=insight,proto3" json:"insight,omitempty"`
+	// Output only. The generated insight report.
+	Report        *InsightReport `protobuf:"bytes,2,opt,name=report,proto3" json:"report,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GenerateInsightResponse) Reset() {
 	*x = GenerateInsightResponse{}
-	mi := &file_api_v1_memo_service_proto_msgTypes[24]
+	mi := &file_api_v1_memo_service_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1749,7 +2117,7 @@ func (x *GenerateInsightResponse) String() string {
 func (*GenerateInsightResponse) ProtoMessage() {}
 
 func (x *GenerateInsightResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_memo_service_proto_msgTypes[24]
+	mi := &file_api_v1_memo_service_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1762,7 +2130,7 @@ func (x *GenerateInsightResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateInsightResponse.ProtoReflect.Descriptor instead.
 func (*GenerateInsightResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{24}
+	return file_api_v1_memo_service_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GenerateInsightResponse) GetInsight() string {
@@ -1770,6 +2138,13 @@ func (x *GenerateInsightResponse) GetInsight() string {
 		return x.Insight
 	}
 	return ""
+}
+
+func (x *GenerateInsightResponse) GetReport() *InsightReport {
+	if x != nil {
+		return x.Report
+	}
+	return nil
 }
 
 // Computed properties of a memo.
@@ -1785,7 +2160,7 @@ type Memo_Property struct {
 
 func (x *Memo_Property) Reset() {
 	*x = Memo_Property{}
-	mi := &file_api_v1_memo_service_proto_msgTypes[25]
+	mi := &file_api_v1_memo_service_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1797,7 +2172,7 @@ func (x *Memo_Property) String() string {
 func (*Memo_Property) ProtoMessage() {}
 
 func (x *Memo_Property) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_memo_service_proto_msgTypes[25]
+	mi := &file_api_v1_memo_service_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1855,7 +2230,7 @@ type MemoRelation_Memo struct {
 
 func (x *MemoRelation_Memo) Reset() {
 	*x = MemoRelation_Memo{}
-	mi := &file_api_v1_memo_service_proto_msgTypes[26]
+	mi := &file_api_v1_memo_service_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1867,7 +2242,7 @@ func (x *MemoRelation_Memo) String() string {
 func (*MemoRelation_Memo) ProtoMessage() {}
 
 func (x *MemoRelation_Memo) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_memo_service_proto_msgTypes[26]
+	mi := &file_api_v1_memo_service_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2048,20 +2423,54 @@ const file_api_v1_memo_service_proto_rawDesc = "" +
 	"\breaction\x18\x02 \x01(\v2\x16.memos.api.v1.ReactionB\x03\xe0A\x02R\breaction\"N\n" +
 	"\x19DeleteMemoReactionRequest\x121\n" +
 	"\x04name\x18\x01 \x01(\tB\x1d\xe0A\x02\xfaA\x17\n" +
-	"\x15memos.api.v1/ReactionR\x04name\"T\n" +
+	"\x15memos.api.v1/ReactionR\x04name\"x\n" +
+	"\x0fInsightCitation\x12-\n" +
+	"\x04memo\x18\x01 \x01(\tB\x19\xe0A\x02\xfaA\x13\n" +
+	"\x11memos.api.v1/MemoR\x04memo\x12\x19\n" +
+	"\x05quote\x18\x02 \x01(\tB\x03\xe0A\x02R\x05quote\x12\x1b\n" +
+	"\x06reason\x18\x03 \x01(\tB\x03\xe0A\x02R\x06reason\"\xcd\x04\n" +
+	"\rInsightReport\x12\x1a\n" +
+	"\x04name\x18\x01 \x01(\tB\x06\xe0A\x03\xe0A\bR\x04name\x123\n" +
+	"\acreator\x18\x02 \x01(\tB\x19\xe0A\x03\xfaA\x13\n" +
+	"\x11memos.api.v1/UserR\acreator\x12@\n" +
+	"\vcreate_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"createTime\x12%\n" +
+	"\vperspective\x18\x04 \x01(\tB\x03\xe0A\x03R\vperspective\x12\x1d\n" +
+	"\asummary\x18\x05 \x01(\tB\x03\xe0A\x03R\asummary\x12\x1d\n" +
+	"\ainsight\x18\x06 \x01(\tB\x03\xe0A\x03R\ainsight\x12(\n" +
+	"\rsource_filter\x18\a \x01(\tB\x03\xe0A\x03R\fsourceFilter\x12/\n" +
+	"\x11source_memo_names\x18\b \x03(\tB\x03\xe0A\x03R\x0fsourceMemoNames\x123\n" +
+	"\x13resolved_memo_count\x18\t \x01(\x05B\x03\xe0A\x03R\x11resolvedMemoCount\x12@\n" +
+	"\tcitations\x18\n" +
+	" \x03(\v2\x1d.memos.api.v1.InsightCitationB\x03\xe0A\x03R\tcitations:r\xeaAo\n" +
+	"\x1amemos.api.v1/InsightReport\x12,users/{user}/insightReports/{insight_report}\x1a\x04name*\x0einsightReports2\rinsightReport\"\x94\x01\n" +
+	"\x19ListInsightReportsRequest\x121\n" +
+	"\x06parent\x18\x01 \x01(\tB\x19\xe0A\x02\xfaA\x13\n" +
+	"\x11memos.api.v1/UserR\x06parent\x12 \n" +
+	"\tpage_size\x18\x02 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
+	"\n" +
+	"page_token\x18\x03 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x8a\x01\n" +
+	"\x1aListInsightReportsResponse\x12D\n" +
+	"\x0finsight_reports\x18\x01 \x03(\v2\x1b.memos.api.v1.InsightReportR\x0einsightReports\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"Q\n" +
+	"\x17GetInsightReportRequest\x126\n" +
+	"\x04name\x18\x01 \x01(\tB\"\xe0A\x02\xfaA\x1c\n" +
+	"\x1amemos.api.v1/InsightReportR\x04name\"{\n" +
 	"\x16GenerateInsightRequest\x12\x1d\n" +
 	"\n" +
 	"memo_names\x18\x01 \x03(\tR\tmemoNames\x12\x1b\n" +
-	"\x06filter\x18\x02 \x01(\tB\x03\xe0A\x01R\x06filter\"3\n" +
+	"\x06filter\x18\x02 \x01(\tB\x03\xe0A\x01R\x06filter\x12%\n" +
+	"\vperspective\x18\x03 \x01(\tB\x03\xe0A\x01R\vperspective\"m\n" +
 	"\x17GenerateInsightResponse\x12\x18\n" +
-	"\ainsight\x18\x01 \x01(\tR\ainsight*P\n" +
+	"\ainsight\x18\x01 \x01(\tR\ainsight\x128\n" +
+	"\x06report\x18\x02 \x01(\v2\x1b.memos.api.v1.InsightReportB\x03\xe0A\x03R\x06report*P\n" +
 	"\n" +
 	"Visibility\x12\x1a\n" +
 	"\x16VISIBILITY_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aPRIVATE\x10\x01\x12\r\n" +
 	"\tPROTECTED\x10\x02\x12\n" +
 	"\n" +
-	"\x06PUBLIC\x10\x032\xde\x0f\n" +
+	"\x06PUBLIC\x10\x032\x93\x12\n" +
 	"\vMemoService\x12e\n" +
 	"\n" +
 	"CreateMemo\x12\x1f.memos.api.v1.CreateMemoRequest\x1a\x12.memos.api.v1.Memo\"\"\xdaA\x04memo\x82\xd3\xe4\x93\x02\x15:\x04memo\"\r/api/v1/memos\x12f\n" +
@@ -2080,7 +2489,9 @@ const file_api_v1_memo_service_proto_rawDesc = "" +
 	"\x11ListMemoReactions\x12&.memos.api.v1.ListMemoReactionsRequest\x1a'.memos.api.v1.ListMemoReactionsResponse\"/\xdaA\x04name\x82\xd3\xe4\x93\x02\"\x12 /api/v1/{name=memos/*}/reactions\x12\x89\x01\n" +
 	"\x12UpsertMemoReaction\x12'.memos.api.v1.UpsertMemoReactionRequest\x1a\x16.memos.api.v1.Reaction\"2\xdaA\x04name\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/{name=memos/*}/reactions\x12\x88\x01\n" +
 	"\x12DeleteMemoReaction\x12'.memos.api.v1.DeleteMemoReactionRequest\x1a\x16.google.protobuf.Empty\"1\xdaA\x04name\x82\xd3\xe4\x93\x02$*\"/api/v1/{name=memos/*/reactions/*}\x12\x88\x01\n" +
-	"\x0fGenerateInsight\x12$.memos.api.v1.GenerateInsightRequest\x1a%.memos.api.v1.GenerateInsightResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/memos:generateInsightB\xa8\x01\n" +
+	"\x0fGenerateInsight\x12$.memos.api.v1.GenerateInsightRequest\x1a%.memos.api.v1.GenerateInsightResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/memos:generateInsight\x12\xa1\x01\n" +
+	"\x12ListInsightReports\x12'.memos.api.v1.ListInsightReportsRequest\x1a(.memos.api.v1.ListInsightReportsResponse\"8\xdaA\x06parent\x82\xd3\xe4\x93\x02)\x12'/api/v1/{parent=users/*}/insightReports\x12\x8e\x01\n" +
+	"\x10GetInsightReport\x12%.memos.api.v1.GetInsightReportRequest\x1a\x1b.memos.api.v1.InsightReport\"6\xdaA\x04name\x82\xd3\xe4\x93\x02)\x12'/api/v1/{name=users/*/insightReports/*}B\xa8\x01\n" +
 	"\x10com.memos.api.v1B\x10MemoServiceProtoP\x01Z0github.com/usememos/memos/proto/gen/api/v1;apiv1\xa2\x02\x03MAX\xaa\x02\fMemos.Api.V1\xca\x02\fMemos\\Api\\V1\xe2\x02\x18Memos\\Api\\V1\\GPBMetadata\xea\x02\x0eMemos::Api::V1b\x06proto3"
 
 var (
@@ -2096,7 +2507,7 @@ func file_api_v1_memo_service_proto_rawDescGZIP() []byte {
 }
 
 var file_api_v1_memo_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_v1_memo_service_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_api_v1_memo_service_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_api_v1_memo_service_proto_goTypes = []any{
 	(Visibility)(0),                     // 0: memos.api.v1.Visibility
 	(MemoRelation_Type)(0),              // 1: memos.api.v1.MemoRelation.Type
@@ -2123,37 +2534,42 @@ var file_api_v1_memo_service_proto_goTypes = []any{
 	(*ListMemoReactionsResponse)(nil),   // 22: memos.api.v1.ListMemoReactionsResponse
 	(*UpsertMemoReactionRequest)(nil),   // 23: memos.api.v1.UpsertMemoReactionRequest
 	(*DeleteMemoReactionRequest)(nil),   // 24: memos.api.v1.DeleteMemoReactionRequest
-	(*GenerateInsightRequest)(nil),      // 25: memos.api.v1.GenerateInsightRequest
-	(*GenerateInsightResponse)(nil),     // 26: memos.api.v1.GenerateInsightResponse
-	(*Memo_Property)(nil),               // 27: memos.api.v1.Memo.Property
-	(*MemoRelation_Memo)(nil),           // 28: memos.api.v1.MemoRelation.Memo
-	(*timestamppb.Timestamp)(nil),       // 29: google.protobuf.Timestamp
-	(State)(0),                          // 30: memos.api.v1.State
-	(*Attachment)(nil),                  // 31: memos.api.v1.Attachment
-	(*fieldmaskpb.FieldMask)(nil),       // 32: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),               // 33: google.protobuf.Empty
+	(*InsightCitation)(nil),             // 25: memos.api.v1.InsightCitation
+	(*InsightReport)(nil),               // 26: memos.api.v1.InsightReport
+	(*ListInsightReportsRequest)(nil),   // 27: memos.api.v1.ListInsightReportsRequest
+	(*ListInsightReportsResponse)(nil),  // 28: memos.api.v1.ListInsightReportsResponse
+	(*GetInsightReportRequest)(nil),     // 29: memos.api.v1.GetInsightReportRequest
+	(*GenerateInsightRequest)(nil),      // 30: memos.api.v1.GenerateInsightRequest
+	(*GenerateInsightResponse)(nil),     // 31: memos.api.v1.GenerateInsightResponse
+	(*Memo_Property)(nil),               // 32: memos.api.v1.Memo.Property
+	(*MemoRelation_Memo)(nil),           // 33: memos.api.v1.MemoRelation.Memo
+	(*timestamppb.Timestamp)(nil),       // 34: google.protobuf.Timestamp
+	(State)(0),                          // 35: memos.api.v1.State
+	(*Attachment)(nil),                  // 36: memos.api.v1.Attachment
+	(*fieldmaskpb.FieldMask)(nil),       // 37: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),               // 38: google.protobuf.Empty
 }
 var file_api_v1_memo_service_proto_depIdxs = []int32{
-	29, // 0: memos.api.v1.Reaction.create_time:type_name -> google.protobuf.Timestamp
-	30, // 1: memos.api.v1.Memo.state:type_name -> memos.api.v1.State
-	29, // 2: memos.api.v1.Memo.create_time:type_name -> google.protobuf.Timestamp
-	29, // 3: memos.api.v1.Memo.update_time:type_name -> google.protobuf.Timestamp
-	29, // 4: memos.api.v1.Memo.display_time:type_name -> google.protobuf.Timestamp
+	34, // 0: memos.api.v1.Reaction.create_time:type_name -> google.protobuf.Timestamp
+	35, // 1: memos.api.v1.Memo.state:type_name -> memos.api.v1.State
+	34, // 2: memos.api.v1.Memo.create_time:type_name -> google.protobuf.Timestamp
+	34, // 3: memos.api.v1.Memo.update_time:type_name -> google.protobuf.Timestamp
+	34, // 4: memos.api.v1.Memo.display_time:type_name -> google.protobuf.Timestamp
 	0,  // 5: memos.api.v1.Memo.visibility:type_name -> memos.api.v1.Visibility
-	31, // 6: memos.api.v1.Memo.attachments:type_name -> memos.api.v1.Attachment
+	36, // 6: memos.api.v1.Memo.attachments:type_name -> memos.api.v1.Attachment
 	14, // 7: memos.api.v1.Memo.relations:type_name -> memos.api.v1.MemoRelation
 	2,  // 8: memos.api.v1.Memo.reactions:type_name -> memos.api.v1.Reaction
-	27, // 9: memos.api.v1.Memo.property:type_name -> memos.api.v1.Memo.Property
+	32, // 9: memos.api.v1.Memo.property:type_name -> memos.api.v1.Memo.Property
 	4,  // 10: memos.api.v1.Memo.location:type_name -> memos.api.v1.Location
 	3,  // 11: memos.api.v1.CreateMemoRequest.memo:type_name -> memos.api.v1.Memo
-	30, // 12: memos.api.v1.ListMemosRequest.state:type_name -> memos.api.v1.State
+	35, // 12: memos.api.v1.ListMemosRequest.state:type_name -> memos.api.v1.State
 	3,  // 13: memos.api.v1.ListMemosResponse.memos:type_name -> memos.api.v1.Memo
 	3,  // 14: memos.api.v1.UpdateMemoRequest.memo:type_name -> memos.api.v1.Memo
-	32, // 15: memos.api.v1.UpdateMemoRequest.update_mask:type_name -> google.protobuf.FieldMask
-	31, // 16: memos.api.v1.SetMemoAttachmentsRequest.attachments:type_name -> memos.api.v1.Attachment
-	31, // 17: memos.api.v1.ListMemoAttachmentsResponse.attachments:type_name -> memos.api.v1.Attachment
-	28, // 18: memos.api.v1.MemoRelation.memo:type_name -> memos.api.v1.MemoRelation.Memo
-	28, // 19: memos.api.v1.MemoRelation.related_memo:type_name -> memos.api.v1.MemoRelation.Memo
+	37, // 15: memos.api.v1.UpdateMemoRequest.update_mask:type_name -> google.protobuf.FieldMask
+	36, // 16: memos.api.v1.SetMemoAttachmentsRequest.attachments:type_name -> memos.api.v1.Attachment
+	36, // 17: memos.api.v1.ListMemoAttachmentsResponse.attachments:type_name -> memos.api.v1.Attachment
+	33, // 18: memos.api.v1.MemoRelation.memo:type_name -> memos.api.v1.MemoRelation.Memo
+	33, // 19: memos.api.v1.MemoRelation.related_memo:type_name -> memos.api.v1.MemoRelation.Memo
 	1,  // 20: memos.api.v1.MemoRelation.type:type_name -> memos.api.v1.MemoRelation.Type
 	14, // 21: memos.api.v1.SetMemoRelationsRequest.relations:type_name -> memos.api.v1.MemoRelation
 	14, // 22: memos.api.v1.ListMemoRelationsResponse.relations:type_name -> memos.api.v1.MemoRelation
@@ -2161,41 +2577,49 @@ var file_api_v1_memo_service_proto_depIdxs = []int32{
 	3,  // 24: memos.api.v1.ListMemoCommentsResponse.memos:type_name -> memos.api.v1.Memo
 	2,  // 25: memos.api.v1.ListMemoReactionsResponse.reactions:type_name -> memos.api.v1.Reaction
 	2,  // 26: memos.api.v1.UpsertMemoReactionRequest.reaction:type_name -> memos.api.v1.Reaction
-	5,  // 27: memos.api.v1.MemoService.CreateMemo:input_type -> memos.api.v1.CreateMemoRequest
-	6,  // 28: memos.api.v1.MemoService.ListMemos:input_type -> memos.api.v1.ListMemosRequest
-	8,  // 29: memos.api.v1.MemoService.GetMemo:input_type -> memos.api.v1.GetMemoRequest
-	9,  // 30: memos.api.v1.MemoService.UpdateMemo:input_type -> memos.api.v1.UpdateMemoRequest
-	10, // 31: memos.api.v1.MemoService.DeleteMemo:input_type -> memos.api.v1.DeleteMemoRequest
-	11, // 32: memos.api.v1.MemoService.SetMemoAttachments:input_type -> memos.api.v1.SetMemoAttachmentsRequest
-	12, // 33: memos.api.v1.MemoService.ListMemoAttachments:input_type -> memos.api.v1.ListMemoAttachmentsRequest
-	15, // 34: memos.api.v1.MemoService.SetMemoRelations:input_type -> memos.api.v1.SetMemoRelationsRequest
-	16, // 35: memos.api.v1.MemoService.ListMemoRelations:input_type -> memos.api.v1.ListMemoRelationsRequest
-	18, // 36: memos.api.v1.MemoService.CreateMemoComment:input_type -> memos.api.v1.CreateMemoCommentRequest
-	19, // 37: memos.api.v1.MemoService.ListMemoComments:input_type -> memos.api.v1.ListMemoCommentsRequest
-	21, // 38: memos.api.v1.MemoService.ListMemoReactions:input_type -> memos.api.v1.ListMemoReactionsRequest
-	23, // 39: memos.api.v1.MemoService.UpsertMemoReaction:input_type -> memos.api.v1.UpsertMemoReactionRequest
-	24, // 40: memos.api.v1.MemoService.DeleteMemoReaction:input_type -> memos.api.v1.DeleteMemoReactionRequest
-	25, // 41: memos.api.v1.MemoService.GenerateInsight:input_type -> memos.api.v1.GenerateInsightRequest
-	3,  // 42: memos.api.v1.MemoService.CreateMemo:output_type -> memos.api.v1.Memo
-	7,  // 43: memos.api.v1.MemoService.ListMemos:output_type -> memos.api.v1.ListMemosResponse
-	3,  // 44: memos.api.v1.MemoService.GetMemo:output_type -> memos.api.v1.Memo
-	3,  // 45: memos.api.v1.MemoService.UpdateMemo:output_type -> memos.api.v1.Memo
-	33, // 46: memos.api.v1.MemoService.DeleteMemo:output_type -> google.protobuf.Empty
-	33, // 47: memos.api.v1.MemoService.SetMemoAttachments:output_type -> google.protobuf.Empty
-	13, // 48: memos.api.v1.MemoService.ListMemoAttachments:output_type -> memos.api.v1.ListMemoAttachmentsResponse
-	33, // 49: memos.api.v1.MemoService.SetMemoRelations:output_type -> google.protobuf.Empty
-	17, // 50: memos.api.v1.MemoService.ListMemoRelations:output_type -> memos.api.v1.ListMemoRelationsResponse
-	3,  // 51: memos.api.v1.MemoService.CreateMemoComment:output_type -> memos.api.v1.Memo
-	20, // 52: memos.api.v1.MemoService.ListMemoComments:output_type -> memos.api.v1.ListMemoCommentsResponse
-	22, // 53: memos.api.v1.MemoService.ListMemoReactions:output_type -> memos.api.v1.ListMemoReactionsResponse
-	2,  // 54: memos.api.v1.MemoService.UpsertMemoReaction:output_type -> memos.api.v1.Reaction
-	33, // 55: memos.api.v1.MemoService.DeleteMemoReaction:output_type -> google.protobuf.Empty
-	26, // 56: memos.api.v1.MemoService.GenerateInsight:output_type -> memos.api.v1.GenerateInsightResponse
-	42, // [42:57] is the sub-list for method output_type
-	27, // [27:42] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	34, // 27: memos.api.v1.InsightReport.create_time:type_name -> google.protobuf.Timestamp
+	25, // 28: memos.api.v1.InsightReport.citations:type_name -> memos.api.v1.InsightCitation
+	26, // 29: memos.api.v1.ListInsightReportsResponse.insight_reports:type_name -> memos.api.v1.InsightReport
+	26, // 30: memos.api.v1.GenerateInsightResponse.report:type_name -> memos.api.v1.InsightReport
+	5,  // 31: memos.api.v1.MemoService.CreateMemo:input_type -> memos.api.v1.CreateMemoRequest
+	6,  // 32: memos.api.v1.MemoService.ListMemos:input_type -> memos.api.v1.ListMemosRequest
+	8,  // 33: memos.api.v1.MemoService.GetMemo:input_type -> memos.api.v1.GetMemoRequest
+	9,  // 34: memos.api.v1.MemoService.UpdateMemo:input_type -> memos.api.v1.UpdateMemoRequest
+	10, // 35: memos.api.v1.MemoService.DeleteMemo:input_type -> memos.api.v1.DeleteMemoRequest
+	11, // 36: memos.api.v1.MemoService.SetMemoAttachments:input_type -> memos.api.v1.SetMemoAttachmentsRequest
+	12, // 37: memos.api.v1.MemoService.ListMemoAttachments:input_type -> memos.api.v1.ListMemoAttachmentsRequest
+	15, // 38: memos.api.v1.MemoService.SetMemoRelations:input_type -> memos.api.v1.SetMemoRelationsRequest
+	16, // 39: memos.api.v1.MemoService.ListMemoRelations:input_type -> memos.api.v1.ListMemoRelationsRequest
+	18, // 40: memos.api.v1.MemoService.CreateMemoComment:input_type -> memos.api.v1.CreateMemoCommentRequest
+	19, // 41: memos.api.v1.MemoService.ListMemoComments:input_type -> memos.api.v1.ListMemoCommentsRequest
+	21, // 42: memos.api.v1.MemoService.ListMemoReactions:input_type -> memos.api.v1.ListMemoReactionsRequest
+	23, // 43: memos.api.v1.MemoService.UpsertMemoReaction:input_type -> memos.api.v1.UpsertMemoReactionRequest
+	24, // 44: memos.api.v1.MemoService.DeleteMemoReaction:input_type -> memos.api.v1.DeleteMemoReactionRequest
+	30, // 45: memos.api.v1.MemoService.GenerateInsight:input_type -> memos.api.v1.GenerateInsightRequest
+	27, // 46: memos.api.v1.MemoService.ListInsightReports:input_type -> memos.api.v1.ListInsightReportsRequest
+	29, // 47: memos.api.v1.MemoService.GetInsightReport:input_type -> memos.api.v1.GetInsightReportRequest
+	3,  // 48: memos.api.v1.MemoService.CreateMemo:output_type -> memos.api.v1.Memo
+	7,  // 49: memos.api.v1.MemoService.ListMemos:output_type -> memos.api.v1.ListMemosResponse
+	3,  // 50: memos.api.v1.MemoService.GetMemo:output_type -> memos.api.v1.Memo
+	3,  // 51: memos.api.v1.MemoService.UpdateMemo:output_type -> memos.api.v1.Memo
+	38, // 52: memos.api.v1.MemoService.DeleteMemo:output_type -> google.protobuf.Empty
+	38, // 53: memos.api.v1.MemoService.SetMemoAttachments:output_type -> google.protobuf.Empty
+	13, // 54: memos.api.v1.MemoService.ListMemoAttachments:output_type -> memos.api.v1.ListMemoAttachmentsResponse
+	38, // 55: memos.api.v1.MemoService.SetMemoRelations:output_type -> google.protobuf.Empty
+	17, // 56: memos.api.v1.MemoService.ListMemoRelations:output_type -> memos.api.v1.ListMemoRelationsResponse
+	3,  // 57: memos.api.v1.MemoService.CreateMemoComment:output_type -> memos.api.v1.Memo
+	20, // 58: memos.api.v1.MemoService.ListMemoComments:output_type -> memos.api.v1.ListMemoCommentsResponse
+	22, // 59: memos.api.v1.MemoService.ListMemoReactions:output_type -> memos.api.v1.ListMemoReactionsResponse
+	2,  // 60: memos.api.v1.MemoService.UpsertMemoReaction:output_type -> memos.api.v1.Reaction
+	38, // 61: memos.api.v1.MemoService.DeleteMemoReaction:output_type -> google.protobuf.Empty
+	31, // 62: memos.api.v1.MemoService.GenerateInsight:output_type -> memos.api.v1.GenerateInsightResponse
+	28, // 63: memos.api.v1.MemoService.ListInsightReports:output_type -> memos.api.v1.ListInsightReportsResponse
+	26, // 64: memos.api.v1.MemoService.GetInsightReport:output_type -> memos.api.v1.InsightReport
+	48, // [48:65] is the sub-list for method output_type
+	31, // [31:48] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_memo_service_proto_init() }
@@ -2212,7 +2636,7 @@ func file_api_v1_memo_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_memo_service_proto_rawDesc), len(file_api_v1_memo_service_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   27,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

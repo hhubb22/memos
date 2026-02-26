@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowUpIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { matchPath } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { userServiceClient } from "@/connect";
@@ -28,6 +28,7 @@ interface Props {
   pageSize?: number;
   showCreator?: boolean;
   enabled?: boolean;
+  prefixElement?: ReactNode;
 }
 
 function useAutoFetchWhenNotScrollable({
@@ -164,6 +165,7 @@ const PagedMemoList = (props: Props) => {
                   <MemoEditor className="mb-2" cacheKey="home-memo-editor" placeholder={t("editor.any-thoughts")} />
                 ) : undefined}
                 <MemoFilters />
+                {props.prefixElement}
               </>
             }
             listMode={layout === "LIST"}

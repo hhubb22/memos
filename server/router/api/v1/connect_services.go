@@ -353,6 +353,22 @@ func (s *ConnectServiceHandler) GenerateInsight(ctx context.Context, req *connec
 	return connect.NewResponse(resp), nil
 }
 
+func (s *ConnectServiceHandler) ListInsightReports(ctx context.Context, req *connect.Request[v1pb.ListInsightReportsRequest]) (*connect.Response[v1pb.ListInsightReportsResponse], error) {
+	resp, err := s.APIV1Service.ListInsightReports(ctx, req.Msg)
+	if err != nil {
+		return nil, convertGRPCError(err)
+	}
+	return connect.NewResponse(resp), nil
+}
+
+func (s *ConnectServiceHandler) GetInsightReport(ctx context.Context, req *connect.Request[v1pb.GetInsightReportRequest]) (*connect.Response[v1pb.InsightReport], error) {
+	resp, err := s.APIV1Service.GetInsightReport(ctx, req.Msg)
+	if err != nil {
+		return nil, convertGRPCError(err)
+	}
+	return connect.NewResponse(resp), nil
+}
+
 // AttachmentService
 
 func (s *ConnectServiceHandler) CreateAttachment(ctx context.Context, req *connect.Request[v1pb.CreateAttachmentRequest]) (*connect.Response[v1pb.Attachment], error) {
