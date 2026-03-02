@@ -682,7 +682,7 @@ func renderInsightMarkdown(output *insightModelOutput, truncatedHints []string) 
 			continue
 		}
 		builder.WriteString(fmt.Sprintf("%d. %s\n", index+1, strings.TrimSpace(conclusion.Conclusion)))
-		builder.WriteString(fmt.Sprintf("   - 引用：`%s`「%s」\n", conclusion.Citation.Memo, strings.TrimSpace(conclusion.Citation.Quote)))
+		builder.WriteString(fmt.Sprintf("   - 证据摘录：「%s」\n", strings.TrimSpace(conclusion.Citation.Quote)))
 		builder.WriteString(fmt.Sprintf("   - 依据：%s\n", strings.TrimSpace(conclusion.Citation.Reason)))
 	}
 

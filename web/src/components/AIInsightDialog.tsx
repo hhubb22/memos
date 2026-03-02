@@ -7,7 +7,6 @@ import MemoContent from "@/components/MemoContent";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { extractMemoIdFromName } from "@/helpers/resource-names";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useGenerateInsight, useInsightReport, useInsightReports } from "@/hooks/useInsightQueries";
 import { useUserStats } from "@/hooks/useUserQueries";
@@ -115,11 +114,24 @@ const combineFilters = (baseFilter: string, customFilter: string): string => {
   return baseFilter || customFilter;
 };
 
+const sanitizeInsightContent = (content: string, hasCitations: boolean): string => {
+  let sanitized = content;
+
+  if (hasCitations) {
+    sanitized = sanitized.replace(/(?:^|\n)#{1,6}\s*引用依据\s*\n[\s\S]*$/u, "");
+    sanitized = sanitized.replace(/(?:^|\n)引用依据\s*\n[\s\S]*$/u, "");
+  }
+
+  sanitized = sanitized.replace(/`?memos\/[A-Za-z0-9_-]+`?/g, "来源笔记");
+  return sanitized.trim();
+};
+
 const renderReport = (report?: InsightReport, fallbackInsight = "") => {
   const content = report?.insight || fallbackInsight;
   if (!content) {
     return null;
   }
+  const sanitizedContent = sanitizeInsightContent(content, Boolean(report?.citations?.length));
 
   return (
     <div className="w-full space-y-4">
@@ -129,7 +141,7 @@ const renderReport = (report?: InsightReport, fallbackInsight = "") => {
           {report.summary}
         </div>
       )}
-      <MemoContent content={content} contentClassName="text-sm leading-relaxed" />
+      <MemoContent content={sanitizedContent} contentClassName="text-sm leading-relaxed" />
       {report?.citations?.length ? (
         <div className="w-full border-t border-border pt-4 space-y-2">
           <p className="text-sm font-medium">引用依据</p>
@@ -138,9 +150,8 @@ const renderReport = (report?: InsightReport, fallbackInsight = "") => {
               <div key={`${citation.memo}-${idx}`} className="rounded-md border border-border/70 bg-muted/20 p-2 text-xs space-y-1">
                 <div className="flex items-center gap-2">
                   <Link to={`/${citation.memo}`} className="text-amber-600 hover:underline">
-                    {extractMemoIdFromName(citation.memo).slice(0, 8)}
+                    来源笔记 #{idx + 1}
                   </Link>
-                  <span className="text-muted-foreground">{citation.memo}</span>
                 </div>
                 <p className="text-foreground italic">“{citation.quote}”</p>
                 <p className="text-muted-foreground">{citation.reason}</p>

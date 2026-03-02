@@ -114,9 +114,14 @@ func TestGenerateInsightWithMemoNamesAndHistory(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.Insight)
+	require.NotContains(t, resp.Insight, "memos/")
+	require.Contains(t, resp.Insight, "先拆分问题，再做决策")
+	require.Contains(t, resp.Insight, "该句直接体现了你的判断策略")
 	require.NotNil(t, resp.Report)
 	require.Equal(t, int32(2), resp.Report.ResolvedMemoCount)
 	require.NotEmpty(t, resp.Report.Name)
+	require.NotEmpty(t, resp.Report.Citations)
+	require.Equal(t, memoOne.Name, resp.Report.Citations[0].Memo)
 
 	listResp, err := ts.Service.ListInsightReports(userCtx, &v1pb.ListInsightReportsRequest{
 		Parent: fmt.Sprintf("users/%d", user.ID),
