@@ -2,6 +2,7 @@ import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { LoaderIcon, RefreshCwIcon, SparklesIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import MemoContent from "@/components/MemoContent";
 import { Button } from "@/components/ui/button";
@@ -13,28 +14,24 @@ import { useUserStats } from "@/hooks/useUserQueries";
 import { handleError } from "@/lib/error";
 import { cn } from "@/lib/utils";
 import type { InsightReport } from "@/types/proto/api/v1/memo_service_pb";
+import { useTranslate } from "@/utils/i18n";
 
 const INSIGHT_CONFIG_KEY = "memos-ai-insight-config-v1";
 
-const PERSPECTIVE_OPTIONS = [
-  { value: "random", label: "随机视角" },
-  { value: "critical_thinking", label: "批判思维" },
-  { value: "systems_thinking", label: "系统思考" },
-  { value: "emotional_pattern", label: "情绪模式" },
-  { value: "creative_association", label: "创意联想" },
-  { value: "socratic_questioning", label: "苏格拉底提问" },
+const PERSPECTIVE_VALUES = [
+  "random",
+  "critical_thinking",
+  "systems_thinking",
+  "emotional_pattern",
+  "creative_association",
+  "socratic_questioning",
 ] as const;
 
-const TIME_RANGE_OPTIONS = [
-  { value: "7d", label: "7天" },
-  { value: "30d", label: "30天" },
-  { value: "1y", label: "1年" },
-  { value: "all", label: "全部" },
-] as const;
+const TIME_RANGE_VALUES = ["7d", "30d", "1y", "all"] as const;
 
 type InsightTab = "generate" | "history";
 type ScopeMode = "memo_names" | "filter";
-type TimeRange = (typeof TIME_RANGE_OPTIONS)[number]["value"];
+type TimeRange = (typeof TIME_RANGE_VALUES)[number];
 
 interface Props {
   open: boolean;
@@ -114,57 +111,31 @@ const combineFilters = (baseFilter: string, customFilter: string): string => {
   return baseFilter || customFilter;
 };
 
-const sanitizeInsightContent = (content: string, hasCitations: boolean): string => {
+const sanitizeInsightContent = (content: string, hasCitations: boolean, sourceMemoLabel: string): string => {
   let sanitized = content;
 
   if (hasCitations) {
-    sanitized = sanitized.replace(/(?:^|\n)#{1,6}\s*引用依据\s*\n[\s\S]*$/u, "");
-    sanitized = sanitized.replace(/(?:^|\n)引用依据\s*\n[\s\S]*$/u, "");
+    const citationSectionPatterns = [
+      /(?:^|\n)#{1,6}\s*引用依据\s*\n[\s\S]*$/u,
+      /(?:^|\n)#{1,6}\s*Citations?\s*\n[\s\S]*$/iu,
+      /(?:^|\n)#{1,6}\s*References?\s*\n[\s\S]*$/iu,
+      /(?:^|\n)引用依据\s*\n[\s\S]*$/u,
+      /(?:^|\n)Citations?\s*\n[\s\S]*$/iu,
+      /(?:^|\n)References?\s*\n[\s\S]*$/iu,
+    ];
+
+    for (const pattern of citationSectionPatterns) {
+      sanitized = sanitized.replace(pattern, "");
+    }
   }
 
-  sanitized = sanitized.replace(/`?memos\/[A-Za-z0-9_-]+`?/g, "来源笔记");
+  sanitized = sanitized.replace(/`?memos\/[A-Za-z0-9_-]+`?/g, sourceMemoLabel);
   return sanitized.trim();
 };
 
-const renderReport = (report?: InsightReport, fallbackInsight = "") => {
-  const content = report?.insight || fallbackInsight;
-  if (!content) {
-    return null;
-  }
-  const sanitizedContent = sanitizeInsightContent(content, Boolean(report?.citations?.length));
-
-  return (
-    <div className="w-full space-y-4">
-      {report?.summary && (
-        <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-foreground">
-          <span className="font-medium">摘要：</span>
-          {report.summary}
-        </div>
-      )}
-      <MemoContent content={sanitizedContent} contentClassName="text-sm leading-relaxed" />
-      {report?.citations?.length ? (
-        <div className="w-full border-t border-border pt-4 space-y-2">
-          <p className="text-sm font-medium">引用依据</p>
-          <div className="space-y-2">
-            {report.citations.map((citation, idx) => (
-              <div key={`${citation.memo}-${idx}`} className="rounded-md border border-border/70 bg-muted/20 p-2 text-xs space-y-1">
-                <div className="flex items-center gap-2">
-                  <Link to={`/${citation.memo}`} className="text-amber-600 hover:underline">
-                    来源笔记 #{idx + 1}
-                  </Link>
-                </div>
-                <p className="text-foreground italic">“{citation.quote}”</p>
-                <p className="text-muted-foreground">{citation.reason}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-};
-
 function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFilter = "", defaultMode }: Props) {
+  const t = useTranslate();
+  const { i18n } = useTranslation();
   const currentUser = useCurrentUser();
   const { data: currentUserStats } = useUserStats(currentUser?.name);
   const { data: historyData, isLoading: isHistoryLoading } = useInsightReports(currentUser?.name, 100);
@@ -180,6 +151,86 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
   const { data: selectedHistoryReport, isLoading: isHistoryReportLoading } = useInsightReport(selectedHistoryName || undefined);
   const generateInsight = useGenerateInsight();
 
+  const perspectiveOptions = useMemo(
+    () => [
+      { value: "random", label: t("insight.perspective.random") },
+      { value: "critical_thinking", label: t("insight.perspective.critical-thinking") },
+      { value: "systems_thinking", label: t("insight.perspective.systems-thinking") },
+      { value: "emotional_pattern", label: t("insight.perspective.emotional-pattern") },
+      { value: "creative_association", label: t("insight.perspective.creative-association") },
+      { value: "socratic_questioning", label: t("insight.perspective.socratic-questioning") },
+    ],
+    [t],
+  );
+
+  const timeRangeOptions = useMemo(
+    () => [
+      { value: "7d" as TimeRange, label: t("insight.time-range.last-7-days") },
+      { value: "30d" as TimeRange, label: t("insight.time-range.last-30-days") },
+      { value: "1y" as TimeRange, label: t("insight.time-range.last-1-year") },
+      { value: "all" as TimeRange, label: t("insight.time-range.all") },
+    ],
+    [t],
+  );
+
+  const localizedPerspectiveLabel = (value: string): string => {
+    switch (value) {
+      case "random":
+        return t("insight.perspective.random");
+      case "critical_thinking":
+        return t("insight.perspective.critical-thinking");
+      case "systems_thinking":
+        return t("insight.perspective.systems-thinking");
+      case "emotional_pattern":
+        return t("insight.perspective.emotional-pattern");
+      case "creative_association":
+        return t("insight.perspective.creative-association");
+      case "socratic_questioning":
+        return t("insight.perspective.socratic-questioning");
+      default:
+        return value;
+    }
+  };
+
+  const renderReport = (report?: InsightReport, fallbackInsight = "") => {
+    const content = report?.insight || fallbackInsight;
+    if (!content) {
+      return null;
+    }
+
+    const sanitizedContent = sanitizeInsightContent(content, Boolean(report?.citations?.length), t("insight.citation.source-memo-label"));
+
+    return (
+      <div className="w-full space-y-4">
+        {report?.summary && (
+          <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-foreground">
+            <span className="font-medium">{t("insight.citation.summary-label")} </span>
+            {report.summary}
+          </div>
+        )}
+        <MemoContent content={sanitizedContent} contentClassName="text-sm leading-relaxed" />
+        {report?.citations?.length ? (
+          <div className="w-full border-t border-border pt-4 space-y-2">
+            <p className="text-sm font-medium">{t("insight.citation.title")}</p>
+            <div className="space-y-2">
+              {report.citations.map((citation, idx) => (
+                <div key={`${citation.memo}-${idx}`} className="rounded-md border border-border/70 bg-muted/20 p-2 text-xs space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Link to={`/${citation.memo}`} className="text-amber-600 hover:underline">
+                      {t("insight.citation.source-memo", { index: idx + 1 })}
+                    </Link>
+                  </div>
+                  <p className="text-foreground italic">“{citation.quote}”</p>
+                  <p className="text-muted-foreground">{citation.reason}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
   const tagCandidates = useMemo(() => {
     const entries = Object.entries(currentUserStats?.tagCount || {});
     return entries
@@ -194,8 +245,13 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
 
   useEffect(() => {
     const config = loadStoredConfig();
-    setPerspective(config.perspective);
-    setTimeRange(config.timeRange);
+    const normalizedPerspective = PERSPECTIVE_VALUES.includes(config.perspective as (typeof PERSPECTIVE_VALUES)[number])
+      ? config.perspective
+      : defaultStoredConfig.perspective;
+    const normalizedTimeRange = TIME_RANGE_VALUES.includes(config.timeRange) ? config.timeRange : defaultStoredConfig.timeRange;
+
+    setPerspective(normalizedPerspective);
+    setTimeRange(normalizedTimeRange);
     setSelectedTags(config.selectedTags);
     setKeywords(config.keywords);
   }, []);
@@ -229,11 +285,11 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
     const finalFilter = combineFilters(defaultFilter, customFilter);
 
     if (scopeMode === "memo_names" && defaultMemoNames.length === 0) {
-      toast.error("当前没有可用的笔记集合，请切换到自定义范围。");
+      toast.error(t("insight.error.no-memo-set"));
       return;
     }
     if (scopeMode === "filter" && !finalFilter) {
-      toast.error("请至少配置一项筛选条件。");
+      toast.error(t("insight.error.no-filter"));
       return;
     }
 
@@ -245,7 +301,7 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
       });
       setLatestReport(response.report);
       setLatestInsight(response.insight);
-      toast.success("洞察已生成");
+      toast.success(t("insight.message.generated"));
     } catch (error: unknown) {
       await handleError(error, toast.error, { context: "Generate insight" });
     }
@@ -261,9 +317,9 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <SparklesIcon className="w-5 h-5 text-amber-500" />
-            AI Insight
+            {t("insight.title")}
           </DialogTitle>
-          <DialogDescription>多笔记深度洞察：支持范围配置、视角切换、强制引用与历史回看。</DialogDescription>
+          <DialogDescription>{t("insight.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="w-full flex items-center gap-2 border-b border-border pb-3">
@@ -272,10 +328,10 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
             className={cn("h-8", activeTab === "generate" ? "bg-amber-500 hover:bg-amber-500/90 text-black" : "")}
             onClick={() => setActiveTab("generate")}
           >
-            生成洞察
+            {t("insight.tab.generate")}
           </Button>
           <Button variant={activeTab === "history" ? "default" : "outline"} className="h-8" onClick={() => setActiveTab("history")}>
-            历史
+            {t("insight.tab.history")}
           </Button>
         </div>
 
@@ -283,7 +339,7 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
           <div className="w-full space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">范围模式</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("insight.form.scope-mode")}</p>
                 <div className="flex flex-wrap gap-2">
                   {defaultMemoNames.length > 0 ? (
                     <Button
@@ -292,7 +348,7 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
                       onClick={() => setScopeMode("memo_names")}
                       className="h-7"
                     >
-                      当前+引用关系 ({defaultMemoNames.length})
+                      {t("insight.form.current-with-relations", { count: defaultMemoNames.length })}
                     </Button>
                   ) : null}
                   <Button
@@ -301,18 +357,18 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
                     onClick={() => setScopeMode("filter")}
                     className="h-7"
                   >
-                    自定义范围
+                    {t("insight.form.custom-scope")}
                   </Button>
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">视角</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("insight.form.perspective")}</p>
                 <select
                   value={perspective}
                   onChange={(event) => setPerspective(event.target.value)}
                   className="w-full h-8 rounded-md border border-border bg-background px-2 text-sm"
                 >
-                  {PERSPECTIVE_OPTIONS.map((option) => (
+                  {perspectiveOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -320,8 +376,12 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
                 </select>
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">关键词（空格分词）</p>
-                <Input placeholder="例如：焦虑 学习 计划" value={keywords} onChange={(event) => setKeywords(event.target.value)} />
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("insight.form.keywords")}</p>
+                <Input
+                  placeholder={t("insight.form.keywords-placeholder")}
+                  value={keywords}
+                  onChange={(event) => setKeywords(event.target.value)}
+                />
               </div>
             </div>
 
@@ -329,9 +389,9 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
               <div className="space-y-3 rounded-md border border-border bg-muted/20 p-3">
                 <div className="flex flex-col md:flex-row md:items-center gap-3">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">时间范围</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("insight.form.time-range")}</p>
                     <div className="flex flex-wrap gap-2">
-                      {TIME_RANGE_OPTIONS.map((option) => (
+                      {timeRangeOptions.map((option) => (
                         <Button
                           key={option.value}
                           size="sm"
@@ -346,13 +406,13 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
                   </div>
                   {defaultFilter ? (
                     <div className="text-xs text-muted-foreground">
-                      已包含当前页面筛选：<code className="font-mono">{defaultFilter}</code>
+                      {t("insight.form.included-filter")} <code className="font-mono">{defaultFilter}</code>
                     </div>
                   ) : null}
                 </div>
                 {tagCandidates.length > 0 ? (
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">标签（多选）</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("insight.form.tags")}</p>
                     <div className="flex flex-wrap gap-2">
                       {tagCandidates.map((tag) => (
                         <Button
@@ -374,12 +434,12 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
             <div className="flex justify-end gap-2">
               <Button onClick={handleGenerate} disabled={isGenerating} className="gap-2">
                 {isGenerating ? <LoaderIcon className="w-4 h-4 animate-spin" /> : <SparklesIcon className="w-4 h-4" />}
-                生成洞察
+                {t("insight.action.generate")}
               </Button>
               {(latestReport || latestInsight) && !isGenerating ? (
                 <Button variant="outline" onClick={regenerate} className="gap-2">
                   <RefreshCwIcon className="w-4 h-4" />
-                  重新生成
+                  {t("insight.action.regenerate")}
                 </Button>
               ) : null}
             </div>
@@ -388,11 +448,11 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
               {isGenerating ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <LoaderIcon className="w-8 h-8 text-amber-500 animate-spin" />
-                  <p className="text-sm text-muted-foreground">正在分析你的笔记...</p>
+                  <p className="text-sm text-muted-foreground">{t("insight.status.analyzing")}</p>
                 </div>
               ) : (
                 renderReport(latestReport, latestInsight) || (
-                  <div className="text-sm text-muted-foreground py-8">配置范围后点击「生成洞察」。</div>
+                  <div className="text-sm text-muted-foreground py-8">{t("insight.status.empty")}</div>
                 )
               )}
             </div>
@@ -403,10 +463,10 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
               {isHistoryLoading ? (
                 <div className="py-8 flex items-center justify-center text-sm text-muted-foreground gap-2">
                   <LoaderIcon className="w-4 h-4 animate-spin" />
-                  加载历史中...
+                  {t("insight.status.history-loading")}
                 </div>
               ) : historyReports.length === 0 ? (
-                <div className="py-8 text-center text-sm text-muted-foreground">暂无历史洞察</div>
+                <div className="py-8 text-center text-sm text-muted-foreground">{t("insight.status.history-empty")}</div>
               ) : (
                 <div className="divide-y divide-border">
                   {historyReports.map((report) => (
@@ -419,9 +479,12 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
                         selectedHistoryName === report.name ? "bg-muted/40" : "",
                       )}
                     >
-                      <p className="text-sm font-medium truncate">{report.summary || report.perspective || report.name}</p>
+                      <p className="text-sm font-medium truncate">
+                        {report.summary || localizedPerspectiveLabel(report.perspective) || report.name}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {report.createTime ? timestampDate(report.createTime).toLocaleString() : "-"} · {report.resolvedMemoCount} 条笔记
+                        {report.createTime ? timestampDate(report.createTime).toLocaleString(i18n.language) : "-"} ·{" "}
+                        {t("insight.history-memo-count", { count: report.resolvedMemoCount })}
                       </p>
                     </button>
                   ))}
@@ -433,10 +496,12 @@ function AIInsightDialog({ open, onOpenChange, defaultMemoNames = [], defaultFil
               {isHistoryReportLoading ? (
                 <div className="py-8 flex items-center justify-center text-sm text-muted-foreground gap-2">
                   <LoaderIcon className="w-4 h-4 animate-spin" />
-                  加载报告中...
+                  {t("insight.status.report-loading")}
                 </div>
               ) : (
-                renderReport(activeHistoryReport) || <div className="text-sm text-muted-foreground">请选择一条历史报告。</div>
+                renderReport(activeHistoryReport) || (
+                  <div className="text-sm text-muted-foreground">{t("insight.status.history-select")}</div>
+                )
               )}
             </div>
           </div>

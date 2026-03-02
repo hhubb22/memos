@@ -107,7 +107,7 @@ const MemoDetailSidebar = ({ memo, className, parentPage }: Props) => {
         <div className="w-full pt-2">
           <Button variant="outline" className="w-full gap-2" onClick={() => setInsightDialogOpen(true)}>
             <SparklesIcon className="w-4 h-4 text-amber-500" />
-            AI Insight
+            {t("insight.title")}
           </Button>
         </div>
       </div>

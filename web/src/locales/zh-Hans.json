@@ -442,6 +442,65 @@
       "week-start-day": "周开始日"
     }
   },
+  "insight": {
+    "title": "AI 洞察",
+    "description": "多笔记深度洞察：支持范围配置、视角切换、强制引用与历史回看。",
+    "tab": {
+      "generate": "生成洞察",
+      "history": "历史"
+    },
+    "form": {
+      "scope-mode": "范围模式",
+      "current-with-relations": "当前+引用关系 ({{count}})",
+      "custom-scope": "自定义范围",
+      "perspective": "视角",
+      "keywords": "关键词（空格分词）",
+      "keywords-placeholder": "例如：焦虑 学习 计划",
+      "time-range": "时间范围",
+      "included-filter": "已包含当前页面筛选：",
+      "tags": "标签（多选）"
+    },
+    "time-range": {
+      "last-7-days": "7天",
+      "last-30-days": "30天",
+      "last-1-year": "1年",
+      "all": "全部"
+    },
+    "perspective": {
+      "random": "随机视角",
+      "critical-thinking": "批判思维",
+      "systems-thinking": "系统思考",
+      "emotional-pattern": "情绪模式",
+      "creative-association": "创意联想",
+      "socratic-questioning": "苏格拉底提问"
+    },
+    "action": {
+      "generate": "生成洞察",
+      "regenerate": "重新生成"
+    },
+    "status": {
+      "analyzing": "正在分析你的笔记...",
+      "empty": "配置范围后点击「生成洞察」。",
+      "history-loading": "加载历史中...",
+      "history-empty": "暂无历史洞察",
+      "report-loading": "加载报告中...",
+      "history-select": "请选择一条历史报告。"
+    },
+    "error": {
+      "no-memo-set": "当前没有可用的笔记集合，请切换到自定义范围。",
+      "no-filter": "请至少配置一项筛选条件。"
+    },
+    "message": {
+      "generated": "洞察已生成"
+    },
+    "citation": {
+      "title": "引用依据",
+      "summary-label": "摘要：",
+      "source-memo": "来源笔记 #{{index}}",
+      "source-memo-label": "来源笔记"
+    },
+    "history-memo-count": "{{count}} 条笔记"
+  },
   "tag": {
     "all-tags": "全部标签",
     "create-tag": "创建标签",

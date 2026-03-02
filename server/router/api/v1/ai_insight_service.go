@@ -10,6 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -25,6 +26,8 @@ const (
 	insightPerspectiveEmotionalPattern   = "emotional_pattern"
 	insightPerspectiveCreativeAssoc      = "creative_association"
 	insightPerspectiveSocraticQuestion   = "socratic_questioning"
+	insightLocaleEnglish                 = "en"
+	insightLocaleSimplifiedChinese       = "zh-Hans"
 	insightDefaultMemoLimit              = 60
 	insightHardMemoLimit                 = 200
 	insightSingleMemoContentLimit        = 1200
@@ -40,34 +43,76 @@ const (
 
 var insightPerspectiveMap = map[string]insightPerspective{
 	insightPerspectiveCriticalThinking: {
-		Key:   insightPerspectiveCriticalThinking,
-		Title: "批判思维",
-		Prompt: "聚焦识别逻辑漏洞、未被检验的假设、叙事偏差。保持直接、克制、可验证。" +
-			"不要给行动建议，而是指出值得深挖的认知断点。",
+		Key: insightPerspectiveCriticalThinking,
 	},
 	insightPerspectiveSystemsThinking: {
-		Key:   insightPerspectiveSystemsThinking,
-		Title: "系统思考",
-		Prompt: "聚焦变量之间的反馈回路、滞后效应、结构性约束与长期模式。" +
-			"帮助用户从事件跳到系统。",
+		Key: insightPerspectiveSystemsThinking,
 	},
 	insightPerspectiveEmotionalPattern: {
-		Key:   insightPerspectiveEmotionalPattern,
-		Title: "情绪模式",
-		Prompt: "聚焦情绪触发、反复出现的心理脚本、内在冲突与需求表达。" +
-			"保持尊重且具体，避免临床诊断措辞。",
+		Key: insightPerspectiveEmotionalPattern,
 	},
 	insightPerspectiveCreativeAssoc: {
-		Key:   insightPerspectiveCreativeAssoc,
-		Title: "创意联想",
-		Prompt: "聚焦跨主题关联、隐喻映射、远距联想，提炼新问题与新组合方式。" +
-			"避免空泛鸡汤。",
+		Key: insightPerspectiveCreativeAssoc,
 	},
 	insightPerspectiveSocraticQuestion: {
-		Key:   insightPerspectiveSocraticQuestion,
-		Title: "苏格拉底提问",
-		Prompt: "聚焦用问题推进思考，追问定义、证据、反例、边界条件与替代解释。" +
-			"问题应尖锐且具体。",
+		Key: insightPerspectiveSocraticQuestion,
+	},
+}
+
+var insightPerspectiveLocaleMap = map[string]map[string]insightPerspectiveLocale{
+	insightLocaleEnglish: {
+		insightPerspectiveCriticalThinking: {
+			Title: "Critical Thinking",
+			Prompt: "Focus on identifying logic gaps, untested assumptions, and narrative bias. Stay direct, restrained, and verifiable. " +
+				"Do not give action advice; point out cognitive breakpoints worth deeper investigation.",
+		},
+		insightPerspectiveSystemsThinking: {
+			Title: "Systems Thinking",
+			Prompt: "Focus on feedback loops, delays, structural constraints, and long-term patterns. " +
+				"Help the user shift from isolated events to system-level understanding.",
+		},
+		insightPerspectiveEmotionalPattern: {
+			Title: "Emotional Pattern",
+			Prompt: "Focus on emotional triggers, recurring mental scripts, inner conflicts, and expressed needs. " +
+				"Stay respectful and concrete; avoid clinical diagnosis language.",
+		},
+		insightPerspectiveCreativeAssoc: {
+			Title: "Creative Association",
+			Prompt: "Focus on cross-topic links, metaphor mapping, and distant associations to surface novel questions and combinations. " +
+				"Avoid generic motivational text.",
+		},
+		insightPerspectiveSocraticQuestion: {
+			Title: "Socratic Questioning",
+			Prompt: "Use questions to drive thinking by probing definitions, evidence, counterexamples, boundary conditions, and alternative explanations. " +
+				"Questions should be sharp and specific.",
+		},
+	},
+	insightLocaleSimplifiedChinese: {
+		insightPerspectiveCriticalThinking: {
+			Title: "批判思维",
+			Prompt: "聚焦识别逻辑漏洞、未被检验的假设、叙事偏差。保持直接、克制、可验证。" +
+				"不要给行动建议，而是指出值得深挖的认知断点。",
+		},
+		insightPerspectiveSystemsThinking: {
+			Title: "系统思考",
+			Prompt: "聚焦变量之间的反馈回路、滞后效应、结构性约束与长期模式。" +
+				"帮助用户从事件跳到系统。",
+		},
+		insightPerspectiveEmotionalPattern: {
+			Title: "情绪模式",
+			Prompt: "聚焦情绪触发、反复出现的心理脚本、内在冲突与需求表达。" +
+				"保持尊重且具体，避免临床诊断措辞。",
+		},
+		insightPerspectiveCreativeAssoc: {
+			Title: "创意联想",
+			Prompt: "聚焦跨主题关联、隐喻映射、远距联想，提炼新问题与新组合方式。" +
+				"避免空泛鸡汤。",
+		},
+		insightPerspectiveSocraticQuestion: {
+			Title: "苏格拉底提问",
+			Prompt: "聚焦用问题推进思考，追问定义、证据、反例、边界条件与替代解释。" +
+				"问题应尖锐且具体。",
+		},
 	},
 }
 
@@ -85,9 +130,7 @@ type AIClient interface {
 }
 
 type insightPerspective struct {
-	Key    string
-	Title  string
-	Prompt string
+	Key string
 }
 
 type insightPromptMemo struct {
@@ -95,6 +138,30 @@ type insightPromptMemo struct {
 	OriginalContent string
 	PromptContent   string
 }
+
+type insightPerspectiveLocale struct {
+	Title  string
+	Prompt string
+}
+
+type insightLocale struct {
+	Key string
+}
+
+type insightTruncationHint struct {
+	Kind  insightTruncationHintKind
+	Count int
+	Limit int
+}
+
+type insightTruncationHintKind string
+
+const (
+	insightTruncationHintHardMemoLimit      insightTruncationHintKind = "hard_memo_limit"
+	insightTruncationHintDefaultMemoLimit   insightTruncationHintKind = "default_memo_limit"
+	insightTruncationHintSingleContentLimit insightTruncationHintKind = "single_content_limit"
+	insightTruncationHintTotalBudgetLimit   insightTruncationHintKind = "total_budget_limit"
+)
 
 type insightModelOutput struct {
 	Summary         string                        `json:"summary"`
@@ -133,6 +200,8 @@ func (s *APIV1Service) GenerateInsight(ctx context.Context, request *v1pb.Genera
 		return nil, status.Errorf(codes.FailedPrecondition, "AI API key is not configured")
 	}
 
+	outputLocale := resolveInsightLocaleFromContext(ctx)
+
 	sourceType, sourceFilter, sourceMemoNames, memosForPrompt, truncatedHints, err := s.resolveInsightSourceMemos(ctx, currentUser.ID, request)
 	if err != nil {
 		return nil, err
@@ -158,13 +227,13 @@ func (s *APIV1Service) GenerateInsight(ctx context.Context, request *v1pb.Genera
 		Model:      aiConfig.Model,
 	})
 
-	modelOutput, err := s.generateStructuredInsightWithValidation(ctx, client, perspective, memosForPrompt)
+	modelOutput, err := s.generateStructuredInsightWithValidation(ctx, client, perspective, memosForPrompt, outputLocale)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to generate structured insight: %v", err)
 	}
 
 	citations := buildStoreInsightCitations(modelOutput)
-	insightMarkdown := renderInsightMarkdown(modelOutput, truncatedHints)
+	insightMarkdown := renderInsightMarkdown(modelOutput, truncatedHints, outputLocale)
 
 	report, err := s.Store.CreateInsightReport(ctx, &store.InsightReport{
 		CreatorID:         currentUser.ID,
@@ -296,7 +365,7 @@ func (s *APIV1Service) resolveInsightSourceMemos(
 	ctx context.Context,
 	creatorID int32,
 	request *v1pb.GenerateInsightRequest,
-) (store.InsightSourceType, string, []string, []*insightPromptMemo, []string, error) {
+) (store.InsightSourceType, string, []string, []*insightPromptMemo, []insightTruncationHint, error) {
 	trimmedMemoNames := make([]string, 0, len(request.MemoNames))
 	for _, memoName := range request.MemoNames {
 		if memoName == "" {
@@ -324,7 +393,11 @@ func (s *APIV1Service) resolveInsightSourceMemos(
 	}
 }
 
-func (s *APIV1Service) loadMemosByName(ctx context.Context, creatorID int32, memoNames []string) ([]*insightPromptMemo, []string, error) {
+func (s *APIV1Service) loadMemosByName(
+	ctx context.Context,
+	creatorID int32,
+	memoNames []string,
+) ([]*insightPromptMemo, []insightTruncationHint, error) {
 	seen := make(map[string]bool, len(memoNames))
 	uniqueNames := make([]string, 0, len(memoNames))
 	for _, memoName := range memoNames {
@@ -363,7 +436,11 @@ func (s *APIV1Service) loadMemosByName(ctx context.Context, creatorID int32, mem
 	return memos, hints, nil
 }
 
-func (s *APIV1Service) loadMemosByFilter(ctx context.Context, creatorID int32, sourceFilter string) ([]*insightPromptMemo, []string, string, error) {
+func (s *APIV1Service) loadMemosByFilter(
+	ctx context.Context,
+	creatorID int32,
+	sourceFilter string,
+) ([]*insightPromptMemo, []insightTruncationHint, string, error) {
 	if err := s.validateFilter(ctx, sourceFilter); err != nil {
 		return nil, nil, "", status.Errorf(codes.InvalidArgument, "invalid filter: %v", err)
 	}
@@ -406,18 +483,24 @@ func randomInsightPerspective() insightPerspective {
 	return insightPerspectiveMap[key]
 }
 
-func trimMemosForInsightPrompt(memos []*store.Memo) ([]*insightPromptMemo, []string) {
+func trimMemosForInsightPrompt(memos []*store.Memo) ([]*insightPromptMemo, []insightTruncationHint) {
 	if len(memos) == 0 {
 		return nil, nil
 	}
 
-	hints := []string{}
+	hints := make([]insightTruncationHint, 0, 4)
 	if len(memos) > insightHardMemoLimit {
-		hints = append(hints, fmt.Sprintf("已触发硬上限，仅分析前 %d 条笔记。", insightHardMemoLimit))
+		hints = append(hints, insightTruncationHint{
+			Kind:  insightTruncationHintHardMemoLimit,
+			Limit: insightHardMemoLimit,
+		})
 		memos = memos[:insightHardMemoLimit]
 	}
 	if len(memos) > insightDefaultMemoLimit {
-		hints = append(hints, fmt.Sprintf("已按默认上限截断，仅分析前 %d 条笔记。", insightDefaultMemoLimit))
+		hints = append(hints, insightTruncationHint{
+			Kind:  insightTruncationHintDefaultMemoLimit,
+			Limit: insightDefaultMemoLimit,
+		})
 		memos = memos[:insightDefaultMemoLimit]
 	}
 
@@ -462,10 +545,17 @@ func trimMemosForInsightPrompt(memos []*store.Memo) ([]*insightPromptMemo, []str
 	}
 
 	if singleTruncatedCount > 0 {
-		hints = append(hints, fmt.Sprintf("有 %d 条笔记按单条 %d 字上限截断。", singleTruncatedCount, insightSingleMemoContentLimit))
+		hints = append(hints, insightTruncationHint{
+			Kind:  insightTruncationHintSingleContentLimit,
+			Count: singleTruncatedCount,
+			Limit: insightSingleMemoContentLimit,
+		})
 	}
 	if totalBudgetTruncated {
-		hints = append(hints, fmt.Sprintf("已触发总字符预算上限（%d 字）。", insightTotalContentBudget))
+		hints = append(hints, insightTruncationHint{
+			Kind:  insightTruncationHintTotalBudgetLimit,
+			Limit: insightTotalContentBudget,
+		})
 	}
 
 	return result, hints
@@ -482,15 +572,161 @@ func truncateByRune(content string, limit int) (string, bool) {
 	return string(runes[:limit]), true
 }
 
+func resolveInsightLocaleFromContext(ctx context.Context) insightLocale {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if localeValues := md.Get("x-memos-locale"); len(localeValues) > 0 {
+			return resolveInsightLocale(localeValues[0])
+		}
+		if acceptLanguageValues := md.Get("accept-language"); len(acceptLanguageValues) > 0 {
+			return resolveInsightLocale(extractPrimaryLanguageTag(acceptLanguageValues[0]))
+		}
+	}
+	return insightLocale{Key: insightLocaleEnglish}
+}
+
+func resolveInsightLocale(input string) insightLocale {
+	normalized := strings.ToLower(strings.TrimSpace(input))
+	normalized = strings.ReplaceAll(normalized, "_", "-")
+
+	switch {
+	case normalized == "zh-hans",
+		normalized == "zh-cn",
+		normalized == "zh-sg",
+		normalized == "zh":
+		return insightLocale{Key: insightLocaleSimplifiedChinese}
+	case normalized == "en",
+		strings.HasPrefix(normalized, "en-"):
+		return insightLocale{Key: insightLocaleEnglish}
+	default:
+		return insightLocale{Key: insightLocaleEnglish}
+	}
+}
+
+func extractPrimaryLanguageTag(acceptLanguage string) string {
+	parts := strings.Split(strings.TrimSpace(acceptLanguage), ",")
+	if len(parts) == 0 {
+		return ""
+	}
+	first := strings.TrimSpace(parts[0])
+	first = strings.Split(first, ";")[0]
+	return strings.TrimSpace(first)
+}
+
+func getLocalizedInsightPerspective(p insightPerspective, locale insightLocale) insightPerspectiveLocale {
+	if localizedByLocale, ok := insightPerspectiveLocaleMap[locale.Key]; ok {
+		if localizedPerspective, ok := localizedByLocale[p.Key]; ok {
+			return localizedPerspective
+		}
+	}
+	if localizedByLocale, ok := insightPerspectiveLocaleMap[insightLocaleEnglish]; ok {
+		if localizedPerspective, ok := localizedByLocale[p.Key]; ok {
+			return localizedPerspective
+		}
+	}
+	return insightPerspectiveLocale{
+		Title:  p.Key,
+		Prompt: "",
+	}
+}
+
+func insightPromptUserPrefix(locale insightLocale) string {
+	if locale.Key == insightLocaleSimplifiedChinese {
+		return "以下是待分析笔记（仅可引用这些来源）：\n"
+	}
+	return "Memos to analyze (you may cite only these sources):\n"
+}
+
+func insightPromptRetryTemplate(locale insightLocale) string {
+	if locale.Key == insightLocaleSimplifiedChinese {
+		return "\n上一次输出未通过校验，错误：%v。请重新输出完全合规 JSON。"
+	}
+	return "\nThe previous output failed validation (error: %v). Please return a fully compliant JSON output."
+}
+
+func buildInsightSystemPrompt(locale insightLocale, perspective insightPerspectiveLocale) string {
+	if locale.Key == insightLocaleSimplifiedChinese {
+		return fmt.Sprintf(`你是一位“%s”视角的思考教练。
+
+目标：
+1) 识别跨笔记的高价值模式，而非逐条复述；
+2) 给出有证据支撑的核心结论；
+3) 生成能推动反思的问题。
+
+风格要求：
+- %s
+- 输出语言必须为简体中文。
+- 不给行动清单，不做诊断，不编造来源。
+
+输出约束（必须严格遵守）：
+- 只输出一个 JSON 对象，不要 Markdown，不要解释，不要代码块围栏。
+- JSON 结构如下（字段名必须一致）：
+{
+  "summary": "string",
+  "core_conclusions": [
+    {
+      "conclusion": "string",
+      "citation": {
+        "memo": "memos/{memo}",
+        "quote": "string",
+        "reason": "string"
+      }
+    }
+  ],
+  "deep_questions": ["string"]
+}
+
+引用硬约束：
+- 每个 core_conclusions 项都必须有 citation。
+- citation.quote 必须是原文中的连续文本片段，不可改写，不可拼接，不可翻译。
+- citation.memo 必须引用给定的 memo 名称之一。`, perspective.Title, perspective.Prompt)
+	}
+
+	return fmt.Sprintf(`You are a thinking coach using the "%s" perspective.
+
+Goals:
+1) Identify high-value patterns across memos instead of summarizing memo-by-memo;
+2) Provide core conclusions supported by evidence;
+3) Generate questions that drive reflection.
+
+Style requirements:
+- %s
+- Output language must be English.
+- Do not provide action checklists, diagnoses, or fabricated sources.
+
+Output constraints (must follow strictly):
+- Return exactly one JSON object. No markdown, no explanation, no code fences.
+- The JSON schema must be:
+{
+  "summary": "string",
+  "core_conclusions": [
+    {
+      "conclusion": "string",
+      "citation": {
+        "memo": "memos/{memo}",
+        "quote": "string",
+        "reason": "string"
+      }
+    }
+  ],
+  "deep_questions": ["string"]
+}
+
+Citation constraints:
+- Every item in core_conclusions must include citation.
+- citation.quote must be an exact contiguous span from the source memo, with no rewrite, concatenation, or translation.
+- citation.memo must reference one of the provided memo names.`, perspective.Title, perspective.Prompt)
+}
+
 func (s *APIV1Service) generateStructuredInsightWithValidation(
 	ctx context.Context,
 	client AIClient,
 	perspective insightPerspective,
 	memos []*insightPromptMemo,
+	locale insightLocale,
 ) (*insightModelOutput, error) {
 	lastErr := errors.New("unknown error")
 	for attempt := 0; attempt <= insightGenerationValidationRetryMax; attempt++ {
-		rawOutput, err := client.GenerateCompletion(ctx, buildInsightPromptMessages(perspective, memos, attempt, lastErr))
+		rawOutput, err := client.GenerateCompletion(ctx, buildInsightPromptMessages(perspective, memos, attempt, lastErr, locale))
 		if err != nil {
 			lastErr = err
 			continue
@@ -518,49 +754,18 @@ func buildInsightPromptMessages(
 	memos []*insightPromptMemo,
 	attempt int,
 	lastErr error,
+	locale insightLocale,
 ) []ai.ChatMessage {
-	systemPrompt := fmt.Sprintf(`你是一位“%s”视角的思考教练。
-
-目标：
-1) 识别跨笔记的高价值模式，而非逐条复述；
-2) 给出有证据支撑的核心结论；
-3) 生成能推动反思的问题。
-
-风格要求：
-- %s
-- 语言与用户笔记语言保持一致。
-- 不给行动清单，不做诊断，不编造来源。
-
-输出约束（必须严格遵守）：
-- 只输出一个 JSON 对象，不要 Markdown，不要解释，不要代码块围栏。
-- JSON 结构如下（字段名必须一致）：
-{
-  "summary": "string",
-  "core_conclusions": [
-    {
-      "conclusion": "string",
-      "citation": {
-        "memo": "memos/{memo}",
-        "quote": "string",
-        "reason": "string"
-      }
-    }
-  ],
-  "deep_questions": ["string"]
-}
-
-引用硬约束：
-- 每个 core_conclusions 项都必须有 citation。
-- citation.quote 必须是原文中的连续文本片段，不可改写，不可拼接。
-- citation.memo 必须引用给定的 memo 名称之一。`, perspective.Title, perspective.Prompt)
+	localizedPerspective := getLocalizedInsightPerspective(perspective, locale)
+	systemPrompt := buildInsightSystemPrompt(locale, localizedPerspective)
 
 	var userBuilder strings.Builder
-	userBuilder.WriteString("以下是待分析笔记（仅可引用这些来源）：\n")
+	userBuilder.WriteString(insightPromptUserPrefix(locale))
 	for index, memo := range memos {
 		userBuilder.WriteString(fmt.Sprintf("\n[%d] %s\n%s\n", index+1, memo.Name, memo.PromptContent))
 	}
 	if attempt > 0 {
-		userBuilder.WriteString(fmt.Sprintf("\n上一次输出未通过校验，错误：%v。请重新输出完全合规 JSON。", lastErr))
+		userBuilder.WriteString(fmt.Sprintf(insightPromptRetryTemplate(locale), lastErr))
 	}
 
 	return []ai.ChatMessage{
@@ -672,21 +877,31 @@ func buildStoreInsightCitations(output *insightModelOutput) []store.InsightCitat
 	return citations
 }
 
-func renderInsightMarkdown(output *insightModelOutput, truncatedHints []string) string {
+func renderInsightMarkdown(output *insightModelOutput, truncatedHints []insightTruncationHint, locale insightLocale) string {
+	markdownLocale := getInsightMarkdownLocale(locale)
+
 	var builder strings.Builder
-	builder.WriteString("## 核心总结\n\n")
+	builder.WriteString(fmt.Sprintf("## %s\n\n", markdownLocale.SummaryHeading))
 	builder.WriteString(strings.TrimSpace(output.Summary))
-	builder.WriteString("\n\n## 关键结论\n\n")
+	builder.WriteString(fmt.Sprintf("\n\n## %s\n\n", markdownLocale.ConclusionsHeading))
 	for index, conclusion := range output.CoreConclusions {
 		if conclusion == nil || conclusion.Citation == nil {
 			continue
 		}
 		builder.WriteString(fmt.Sprintf("%d. %s\n", index+1, strings.TrimSpace(conclusion.Conclusion)))
-		builder.WriteString(fmt.Sprintf("   - 证据摘录：「%s」\n", strings.TrimSpace(conclusion.Citation.Quote)))
-		builder.WriteString(fmt.Sprintf("   - 依据：%s\n", strings.TrimSpace(conclusion.Citation.Reason)))
+		builder.WriteString(
+			fmt.Sprintf(
+				"   - %s：%s%s%s\n",
+				markdownLocale.EvidenceQuoteLabel,
+				markdownLocale.QuotePrefix,
+				strings.TrimSpace(conclusion.Citation.Quote),
+				markdownLocale.QuoteSuffix,
+			),
+		)
+		builder.WriteString(fmt.Sprintf("   - %s：%s\n", markdownLocale.ReasonLabel, strings.TrimSpace(conclusion.Citation.Reason)))
 	}
 
-	builder.WriteString("\n## 深刻问题\n\n")
+	builder.WriteString(fmt.Sprintf("\n## %s\n\n", markdownLocale.DeepQuestionsHeading))
 	for index, question := range output.DeepQuestions {
 		trimmed := strings.TrimSpace(question)
 		if trimmed == "" {
@@ -696,11 +911,84 @@ func renderInsightMarkdown(output *insightModelOutput, truncatedHints []string) 
 	}
 
 	if len(truncatedHints) > 0 {
-		builder.WriteString("\n> 输入裁剪提示：")
-		builder.WriteString(strings.Join(truncatedHints, "；"))
+		builder.WriteString(fmt.Sprintf("\n> %s", markdownLocale.TruncationPrefix))
+		builder.WriteString(strings.Join(renderInsightTruncationHints(locale, truncatedHints), markdownLocale.HintSeparator))
 	}
 
 	return strings.TrimSpace(builder.String())
+}
+
+type insightMarkdownLocale struct {
+	SummaryHeading       string
+	ConclusionsHeading   string
+	DeepQuestionsHeading string
+	EvidenceQuoteLabel   string
+	ReasonLabel          string
+	QuotePrefix          string
+	QuoteSuffix          string
+	TruncationPrefix     string
+	HintSeparator        string
+}
+
+func getInsightMarkdownLocale(locale insightLocale) insightMarkdownLocale {
+	if locale.Key == insightLocaleSimplifiedChinese {
+		return insightMarkdownLocale{
+			SummaryHeading:       "核心总结",
+			ConclusionsHeading:   "关键结论",
+			DeepQuestionsHeading: "深刻问题",
+			EvidenceQuoteLabel:   "证据摘录",
+			ReasonLabel:          "依据",
+			QuotePrefix:          "「",
+			QuoteSuffix:          "」",
+			TruncationPrefix:     "输入裁剪提示：",
+			HintSeparator:        "；",
+		}
+	}
+
+	return insightMarkdownLocale{
+		SummaryHeading:       "Summary",
+		ConclusionsHeading:   "Key Conclusions",
+		DeepQuestionsHeading: "Deep Questions",
+		EvidenceQuoteLabel:   "Evidence Quote",
+		ReasonLabel:          "Rationale",
+		QuotePrefix:          "\"",
+		QuoteSuffix:          "\"",
+		TruncationPrefix:     "Input truncation notes:",
+		HintSeparator:        "; ",
+	}
+}
+
+func renderInsightTruncationHints(locale insightLocale, hints []insightTruncationHint) []string {
+	result := make([]string, 0, len(hints))
+	for _, hint := range hints {
+		switch hint.Kind {
+		case insightTruncationHintHardMemoLimit:
+			if locale.Key == insightLocaleSimplifiedChinese {
+				result = append(result, fmt.Sprintf("已触发硬上限，仅分析前 %d 条笔记。", hint.Limit))
+			} else {
+				result = append(result, fmt.Sprintf("Hard cap reached; only the first %d memos were analyzed.", hint.Limit))
+			}
+		case insightTruncationHintDefaultMemoLimit:
+			if locale.Key == insightLocaleSimplifiedChinese {
+				result = append(result, fmt.Sprintf("已按默认上限截断，仅分析前 %d 条笔记。", hint.Limit))
+			} else {
+				result = append(result, fmt.Sprintf("Default cap applied; only the first %d memos were analyzed.", hint.Limit))
+			}
+		case insightTruncationHintSingleContentLimit:
+			if locale.Key == insightLocaleSimplifiedChinese {
+				result = append(result, fmt.Sprintf("有 %d 条笔记按单条 %d 字上限截断。", hint.Count, hint.Limit))
+			} else {
+				result = append(result, fmt.Sprintf("%d memo(s) were truncated to %d characters each.", hint.Count, hint.Limit))
+			}
+		case insightTruncationHintTotalBudgetLimit:
+			if locale.Key == insightLocaleSimplifiedChinese {
+				result = append(result, fmt.Sprintf("已触发总字符预算上限（%d 字）。", hint.Limit))
+			} else {
+				result = append(result, fmt.Sprintf("Total character budget reached (%d characters).", hint.Limit))
+			}
+		}
+	}
+	return result
 }
 
 func collectResolvedMemoNames(memos []*insightPromptMemo) []string {

@@ -441,6 +441,65 @@
       "week-start-day": "Week start day"
     }
   },
+  "insight": {
+    "title": "AI Insight",
+    "description": "Deep multi-memo insight with configurable scope, perspective switching, enforced citations, and history review.",
+    "tab": {
+      "generate": "Generate Insight",
+      "history": "History"
+    },
+    "form": {
+      "scope-mode": "Scope mode",
+      "current-with-relations": "Current + references ({{count}})",
+      "custom-scope": "Custom scope",
+      "perspective": "Perspective",
+      "keywords": "Keywords (space-separated)",
+      "keywords-placeholder": "e.g. anxiety learning plan",
+      "time-range": "Time range",
+      "included-filter": "Current page filter included:",
+      "tags": "Tags (multi-select)"
+    },
+    "time-range": {
+      "last-7-days": "7 days",
+      "last-30-days": "30 days",
+      "last-1-year": "1 year",
+      "all": "All"
+    },
+    "perspective": {
+      "random": "Random perspective",
+      "critical-thinking": "Critical thinking",
+      "systems-thinking": "Systems thinking",
+      "emotional-pattern": "Emotional pattern",
+      "creative-association": "Creative association",
+      "socratic-questioning": "Socratic questioning"
+    },
+    "action": {
+      "generate": "Generate Insight",
+      "regenerate": "Regenerate"
+    },
+    "status": {
+      "analyzing": "Analyzing your memos...",
+      "empty": "Configure scope and click \"Generate Insight\".",
+      "history-loading": "Loading history...",
+      "history-empty": "No insight history yet.",
+      "report-loading": "Loading report...",
+      "history-select": "Select a history report."
+    },
+    "error": {
+      "no-memo-set": "No memos are available in the current set. Switch to custom scope.",
+      "no-filter": "Configure at least one filter condition."
+    },
+    "message": {
+      "generated": "Insight generated"
+    },
+    "citation": {
+      "title": "Citations",
+      "summary-label": "Summary:",
+      "source-memo": "Source memo #{{index}}",
+      "source-memo-label": "Source memo"
+    },
+    "history-memo-count": "{{count}} memos"
+  },
   "tag": {
     "all-tags": "All Tags",
     "create-tag": "Create Tag",

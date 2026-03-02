@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/usememos/memos/plugin/ai"
@@ -18,12 +19,17 @@ import (
 )
 
 type mockAIClient struct {
-	responses []string
-	err       error
-	callCount int
+	responses     []string
+	err           error
+	callCount     int
+	lastMessages  []ai.ChatMessage
+	allCallInputs [][]ai.ChatMessage
 }
 
-func (m *mockAIClient) GenerateCompletion(_ context.Context, _ []ai.ChatMessage) (string, error) {
+func (m *mockAIClient) GenerateCompletion(_ context.Context, messages []ai.ChatMessage) (string, error) {
+	m.lastMessages = append([]ai.ChatMessage(nil), messages...)
+	m.allCallInputs = append(m.allCallInputs, append([]ai.ChatMessage(nil), messages...))
+
 	if m.err != nil {
 		return "", m.err
 	}
@@ -86,6 +92,10 @@ func createMemoForUser(t *testing.T, ts *TestService, ctx context.Context, conte
 	return memo
 }
 
+func withLocaleMetadata(ctx context.Context, locale string) context.Context {
+	return metadata.NewIncomingContext(ctx, metadata.Pairs("x-memos-locale", locale))
+}
+
 func TestGenerateInsightWithMemoNamesAndHistory(t *testing.T) {
 	ctx := context.Background()
 	ts := NewTestService(t)
@@ -135,6 +145,97 @@ func TestGenerateInsightWithMemoNamesAndHistory(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.Equal(t, resp.Report.Name, getResp.Name)
+}
+
+func TestGenerateInsightUsesEnglishPromptAndMarkdownByLocale(t *testing.T) {
+	ctx := context.Background()
+	ts := NewTestService(t)
+	defer ts.Cleanup()
+
+	user, err := ts.CreateRegularUser(ctx, "insight-locale-en-user")
+	require.NoError(t, err)
+	userCtx := withLocaleMetadata(ts.CreateUserContext(ctx, user.ID), "en")
+	setupAIConfig(t, ts, ctx)
+
+	memo := createMemoForUser(t, ts, userCtx, "I split the problem before making a decision.")
+	mockClient := &mockAIClient{
+		responses: []string{
+			buildInsightOutputJSON(t, memo.Name, "split the problem before making a decision"),
+		},
+	}
+	ts.Service.AIClientFactory = func(_ ai.Config) apiv1.AIClient {
+		return mockClient
+	}
+
+	resp, err := ts.Service.GenerateInsight(userCtx, &v1pb.GenerateInsightRequest{
+		MemoNames: []string{memo.Name},
+	})
+	require.NoError(t, err)
+	require.Contains(t, resp.Insight, "## Summary")
+	require.Contains(t, resp.Insight, "## Key Conclusions")
+	require.NotContains(t, resp.Insight, "## 核心总结")
+	require.NotEmpty(t, mockClient.lastMessages)
+	require.Contains(t, mockClient.lastMessages[0].Content, "Output language must be English")
+}
+
+func TestGenerateInsightUsesChinesePromptAndMarkdownByLocale(t *testing.T) {
+	ctx := context.Background()
+	ts := NewTestService(t)
+	defer ts.Cleanup()
+
+	user, err := ts.CreateRegularUser(ctx, "insight-locale-zh-user")
+	require.NoError(t, err)
+	userCtx := withLocaleMetadata(ts.CreateUserContext(ctx, user.ID), "zh-Hans")
+	setupAIConfig(t, ts, ctx)
+
+	memo := createMemoForUser(t, ts, userCtx, "我通常先拆分问题，再做决策。")
+	mockClient := &mockAIClient{
+		responses: []string{
+			buildInsightOutputJSON(t, memo.Name, "先拆分问题，再做决策"),
+		},
+	}
+	ts.Service.AIClientFactory = func(_ ai.Config) apiv1.AIClient {
+		return mockClient
+	}
+
+	resp, err := ts.Service.GenerateInsight(userCtx, &v1pb.GenerateInsightRequest{
+		MemoNames: []string{memo.Name},
+	})
+	require.NoError(t, err)
+	require.Contains(t, resp.Insight, "## 核心总结")
+	require.Contains(t, resp.Insight, "## 关键结论")
+	require.NotContains(t, resp.Insight, "## Summary")
+	require.NotEmpty(t, mockClient.lastMessages)
+	require.Contains(t, mockClient.lastMessages[0].Content, "输出语言必须为简体中文")
+}
+
+func TestGenerateInsightLocaleFallbacksToEnglish(t *testing.T) {
+	ctx := context.Background()
+	ts := NewTestService(t)
+	defer ts.Cleanup()
+
+	user, err := ts.CreateRegularUser(ctx, "insight-locale-fallback-user")
+	require.NoError(t, err)
+	userCtx := withLocaleMetadata(ts.CreateUserContext(ctx, user.ID), "fr-FR")
+	setupAIConfig(t, ts, ctx)
+
+	memo := createMemoForUser(t, ts, userCtx, "Fallback locale memo.")
+	mockClient := &mockAIClient{
+		responses: []string{
+			buildInsightOutputJSON(t, memo.Name, "Fallback locale memo"),
+		},
+	}
+	ts.Service.AIClientFactory = func(_ ai.Config) apiv1.AIClient {
+		return mockClient
+	}
+
+	resp, err := ts.Service.GenerateInsight(userCtx, &v1pb.GenerateInsightRequest{
+		MemoNames: []string{memo.Name},
+	})
+	require.NoError(t, err)
+	require.Contains(t, resp.Insight, "## Summary")
+	require.NotEmpty(t, mockClient.lastMessages)
+	require.Contains(t, mockClient.lastMessages[0].Content, "Output language must be English")
 }
 
 func TestGenerateInsightFilterScopedToCurrentUser(t *testing.T) {

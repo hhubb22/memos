@@ -18,6 +18,20 @@ import { redirectOnAuthFailure } from "./utils/auth-redirect";
 
 const RETRY_HEADER = "X-Retry";
 const RETRY_HEADER_VALUE = "true";
+const LOCALE_HEADER = "X-Memos-Locale";
+const LOCALE_STORAGE_KEY = "memos-locale";
+
+const getLocaleForRequest = (): string => {
+  try {
+    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (stored) {
+      return stored;
+    }
+  } catch {
+    // Ignore storage access errors and fallback to browser language.
+  }
+  return navigator.language || "en";
+};
 
 // ============================================================================
 // Token Refresh State Management
@@ -91,6 +105,8 @@ export async function refreshAccessToken(): Promise<void> {
 // ============================================================================
 
 const authInterceptor: Interceptor = (next) => async (req) => {
+  req.header.set(LOCALE_HEADER, getLocaleForRequest());
+
   const token = getAccessToken();
   if (token) {
     req.header.set("Authorization", `Bearer ${token}`);
